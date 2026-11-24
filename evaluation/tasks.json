@@ -1,0 +1,53 @@
+{
+  "schema": 1,
+  "status": "engineering_validation_bundle",
+  "tasks": [
+    {
+      "id": "ordinary-58",
+      "instructions": "Import the 58-tip tree, explicitly declare probability supports, rename only the displayed Taxon_001 to Sample one, and export SVG, PNG and the reusable configuration. Keep every raw sample identity and branch length.",
+      "success": [
+        "58 raw identities preserved",
+        "same unrooted topology and raw lengths",
+        "only requested display alias",
+        "valid SVG width1000 and PNG",
+        "configuration reopens with the same settings"
+      ]
+    },
+    {
+      "id": "dating-27",
+      "instructions": "Import the artificial dated tree. Select Mya and height; display its original ages and HPD. Export SVG, PNG and configuration without rerooting or redating. The times and intervals are invented test values.",
+      "success": [
+        "27 raw identities preserved",
+        "input root, all ages and HPD unchanged",
+        "no support-rate labels or markers",
+        "all requested outputs reopen"
+      ]
+    },
+    {
+      "id": "conflict-12",
+      "instructions": "Compare the two artificial trees. Declare probability for the primary and percent for the comparison. Preserve names and both input topologies; export SVG, PNG and configuration.",
+      "success": [
+        "12 raw identities on both sides",
+        "both topologies and lengths preserved",
+        "source-specific support units",
+        "sample connectors match raw identities",
+        "all requested outputs reopen"
+      ]
+    },
+    {
+      "id": "cloud-5",
+      "instructions": "Use the artificial dated reference with relative units and branch-length ages. Import all three artificial gene trees, declare probability support units, retain four-category statistics and draw only the complete eligible cloud subset. Export SVG, PNG, configuration and the complete tree audit. Do not interpret synthetic branches or display_alignment as a biological estimate.",
+      "success": [
+        "5 raw identities and imported root age10 preserved",
+        "3 input trees accounted for",
+        "all eligible trees in statistics, full subset in cloud only",
+        "four categories and original denominator retained",
+        "display-only changes do not run scientific engines",
+        "all requested outputs reopen"
+      ]
+    }
+  ],
+  "shared_recovery_task": "After a valid figure, try the four-tip tree ((A:1,B:1)0.5:1,(C:1,D:1)0.5:1); with automatic units. Record its unit-ambiguity rejection and verify that the previous figure and configuration remain exportable. Then explicitly declare probability and retry in a separate figure.",
+  "all_attempts_required": true,
+  "scope": "Four-workspace functionality, scientific-input protection, reproducible exports and failure recovery."
+}

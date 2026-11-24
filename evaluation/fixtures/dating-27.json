@@ -1,0 +1,20 @@
+{
+  "id": "dating-27",
+  "spec": {
+    "workspace": "time",
+    "main_tree": {
+      "name": "dating-27.nwk",
+      "content": "((((Taxon_001:2,(Taxon_002:1,Taxon_003:1)[&height=1,height_95%_HPD={0.8,1.2}]:1)[&height=2,height_95%_HPD={1.6,2.4}]:1,(Taxon_004:2,(Taxon_005:1,Taxon_006:1)[&height=1,height_95%_HPD={0.8,1.2}]:1)[&height=2,height_95%_HPD={1.6,2.4}]:1)[&height=3,height_95%_HPD={2.4,3.6}]:1,((Taxon_007:2,(Taxon_008:1,Taxon_009:1)[&height=1,height_95%_HPD={0.8,1.2}]:1)[&height=2,height_95%_HPD={1.6,2.4}]:1,((Taxon_010:1,Taxon_011:1)[&height=1,height_95%_HPD={0.8,1.2}]:1,(Taxon_012:1,Taxon_013:1)[&height=1,height_95%_HPD={0.8,1.2}]:1)[&height=2,height_95%_HPD={1.6,2.4}]:1)[&height=3,height_95%_HPD={2.4,3.6}]:1)[&height=4,height_95%_HPD={3.2,4.8}]:1,(((Taxon_014:2,(Taxon_015:1,Taxon_016:1)[&height=1,height_95%_HPD={0.8,1.2}]:1)[&height=2,height_95%_HPD={1.6,2.4}]:1,((Taxon_017:1,Taxon_018:1)[&height=1,height_95%_HPD={0.8,1.2}]:1,(Taxon_019:1,Taxon_020:1)[&height=1,height_95%_HPD={0.8,1.2}]:1)[&height=2,height_95%_HPD={1.6,2.4}]:1)[&height=3,height_95%_HPD={2.4,3.6}]:1,((Taxon_021:2,(Taxon_022:1,Taxon_023:1)[&height=1,height_95%_HPD={0.8,1.2}]:1)[&height=2,height_95%_HPD={1.6,2.4}]:1,((Taxon_024:1,Taxon_025:1)[&height=1,height_95%_HPD={0.8,1.2}]:1,(Taxon_026:1,Taxon_027:1)[&height=1,height_95%_HPD={0.8,1.2}]:1)[&height=2,height_95%_HPD={1.6,2.4}]:1)[&height=3,height_95%_HPD={2.4,3.6}]:1)[&height=4,height_95%_HPD={3.2,4.8}]:1)[&height=5,height_95%_HPD={4,6}];"
+    },
+    "options": {
+      "time": {
+        "source_unit": "mya",
+        "age_source": "height",
+        "geology": "none"
+      }
+    }
+  },
+  "synthetic": true,
+  "inferential_claim": "none",
+  "input_origin": "Original deterministic artificial topology, lengths, supports and intervals"
+}

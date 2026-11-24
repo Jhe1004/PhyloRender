@@ -1,0 +1,1336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "workspace": {
+      "description": "Explicit workspace, identical to the web tabs. Legacy requests use phylogeny; time must preserve the input root.",
+      "type": "string",
+      "enum": [
+        "phylogeny",
+        "time",
+        "cloud",
+        "conflict"
+      ]
+    },
+    "main_tree": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Original file name used for provenance and exported artifact naming.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120000000,
+          "description": "Complete Newick or Nexus tree text. The server reads this value but never edits it."
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "comparison_tree": {
+      "description": "Right comparison tree; required for conflict.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Original file name used for provenance and exported artifact naming.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120000000,
+          "description": "Complete Newick or Nexus tree text. The server reads this value but never edits it."
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "gene_trees": {
+      "description": "All gene trees as a Newick collection. The built-in conflict engine uses all eligible trees; the cloud uses exact-terminal ML subsets.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Original file name used for provenance and exported artifact naming.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120000000,
+          "description": "Complete Newick or Nexus tree text. The server reads this value but never edits it."
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "phyparts_table": {
+      "description": "Optional precomputed node table. Omit to calculate complete four-category conflict statistics from gene_trees with PhyloRender's built-in JavaScript engine.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Original file name used for provenance and exported artifact naming.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120000000,
+          "description": "Complete Newick or Nexus tree text. The server reads this value but never edits it."
+        }
+      },
+      "required": [
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "sample_groups": {
+      "description": "Explicit sample grouping table for conflict figures; overrides Newick clade annotations and inferred clades.",
+      "maxItems": 200,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "description": "Legend and group label for these samples."
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-f]{6}$",
+            "description": "Hex color #RRGGBB shared by the primary clade, comparison tips, and connecting lines."
+          },
+          "samples": {
+            "minItems": 1,
+            "maxItems": 5000,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            },
+            "description": "Exact original primary-tree tip labels belonging to this group."
+          }
+        },
+        "required": [
+          "name",
+          "color",
+          "samples"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "support_trees": {
+      "default": [],
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Original file name used for provenance and exported artifact naming.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120000000,
+            "description": "Complete Newick or Nexus tree text. The server reads this value but never edits it."
+          },
+          "source_id": {
+            "description": "Stable source identifier. Omit on creation to let PhyloRender assign one.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9._:-]+$"
+          },
+          "label": {
+            "description": "Display name for this node-data source, such as Bootstrap or posterior probability.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "field": {
+            "description": "Numeric field to read. Use auto, ages, a field key, or field:<key>. Omit to use PhyloRender's safe automatic selection.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "scale": {
+            "description": "Explicit support units for this source, optionally one unit per /-separated column. Auto resolves each column from the whole source and rejects nonzero values confined to 0–1 because they could also be low percentages.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "pattern": "^(?:auto|probability|percent)(?:\\/(?:auto|probability|percent))*$"
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "other_data_trees": {
+      "default": [],
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Original file name used for provenance and exported artifact naming.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120000000,
+            "description": "Complete Newick or Nexus tree text. The server reads this value but never edits it."
+          },
+          "source_id": {
+            "description": "Stable source identifier. Omit on creation to let PhyloRender assign one.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9._:-]+$"
+          },
+          "label": {
+            "description": "Display name for this node-data source, such as Bootstrap or posterior probability.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "field": {
+            "description": "Numeric field to read. Use auto, ages, a field key, or field:<key>. Omit to use PhyloRender's safe automatic selection.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "decimals": {
+            "description": "Decimal places for an other-data source. Support-rate precision is controlled globally.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6
+          }
+        },
+        "required": [
+          "content"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tip_label_overrides": {
+      "default": {},
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000
+      },
+      "description": "Display-only sample-name mapping from an exact original tree tip label to the desired figure label. Original labels remain the semantic identifiers for rooting, support matching, clades, and later edits."
+    },
+    "rooting": {
+      "type": "object",
+      "properties": {
+        "outgroup": {
+          "description": "One or more tip labels inside one monophyletic outgroup branch. Omit to use a unique Euptelea pleiosperma by default for non-time trees; null explicitly retains the input root.",
+          "anyOf": [
+            {
+              "minItems": 1,
+              "maxItems": 5000,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "options": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "layout": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "phylogram",
+                "cladogram",
+                "aligned"
+              ]
+            },
+            "ladderize": {
+              "type": "string",
+              "enum": [
+                "file",
+                "small-top",
+                "large-top"
+              ]
+            },
+            "clade_bar_alignment": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "nearby",
+                "aligned"
+              ]
+            },
+            "automatic_tip_spacing": {
+              "type": "boolean"
+            },
+            "horizontal_scale": {
+              "type": "number",
+              "minimum": 25,
+              "maximum": 400
+            },
+            "tip_order": {
+              "anyOf": [
+                {
+                  "minItems": 2,
+                  "maxItems": 5000,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "branch_width": {
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 4
+            },
+            "branch_width_pt": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "number",
+              "minimum": 0.375,
+              "maximum": 3
+            },
+            "node_radius_pt": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "number",
+              "minimum": 1.5,
+              "maximum": 9
+            },
+            "tip_spacing_em": {
+              "type": "number",
+              "minimum": 0.9,
+              "maximum": 4
+            },
+            "tip_spacing": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "number",
+              "minimum": 4.5,
+              "maximum": 72
+            },
+            "branch_width_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 0.3309066843150232,
+              "maximum": 2.6472534745201854
+            },
+            "node_radius_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 1.3236267372600927,
+              "maximum": 7.941760423560556
+            },
+            "tip_spacing_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 2.9781601588352085,
+              "maximum": 47.650562541363335
+            }
+          },
+          "additionalProperties": false
+        },
+        "output": {
+          "type": "object",
+          "properties": {
+            "width_mm": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 800
+            },
+            "dpi": {
+              "type": "number",
+              "minimum": 72,
+              "maximum": 1200
+            },
+            "aspect_ratio": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "content",
+                "1:1",
+                "4:3",
+                "3:2",
+                "16:9",
+                "a4-landscape",
+                "a4-portrait",
+                "custom"
+              ]
+            },
+            "custom_ratio": {
+              "type": "number",
+              "minimum": 0.4,
+              "maximum": 3
+            },
+            "png_scale": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 4
+            }
+          },
+          "additionalProperties": false
+        },
+        "labels": {
+          "type": "object",
+          "properties": {
+            "auto_placement": {
+              "type": "boolean"
+            },
+            "leader_lines": {
+              "type": "boolean"
+            },
+            "node_arrows": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "support": {
+          "type": "object",
+          "properties": {
+            "scale": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "pattern": "^(?:auto|probability|percent)(?:\\/(?:auto|probability|percent))*$",
+              "description": "auto rejects ambiguous fractional-only or mixed-unit sources; use probability or percent explicitly; for compound columns, declare one unit per column separated by /, for example probability/percent."
+            },
+            "decimals": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "const": "auto"
+                },
+                {
+                  "type": "string",
+                  "const": "original"
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 6
+                }
+              ]
+            },
+            "full_support_marker": {
+              "type": "string",
+              "enum": [
+                "branch",
+                "circle",
+                "number",
+                "hide",
+                "star"
+              ]
+            },
+            "low_support_threshold": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            }
+          },
+          "additionalProperties": false
+        },
+        "typography": {
+          "type": "object",
+          "properties": {
+            "tips": {
+              "type": "object",
+              "properties": {
+                "size_pt": {
+                  "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+                  "type": "number",
+                  "minimum": 6,
+                  "maximum": 22.5
+                },
+                "family": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "description": "CSS font-family value. Figure defaults prefer real installed Arial for all typography. Arial requests use real installed Arial when available; otherwise explicitly switch to bundled Arimo, reflow and report the actual font in normalized options, warnings and SVG metadata. Arial remains a system-font reference in SVG; fallback Arimo subsets are embedded. Georgia, Times, Helvetica and PingFang legacy requests map to bundled alternatives whose required subsets are embedded."
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 8,
+                  "maximum": 30
+                },
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-f]{6}$",
+                  "description": "Six-digit hexadecimal color such as #0072B2."
+                },
+                "bold": {
+                  "type": "boolean"
+                },
+                "italic_mode": {
+                  "type": "string",
+                  "enum": [
+                    "auto",
+                    "all",
+                    "none"
+                  ]
+                },
+                "normalize_ranks": {
+                  "type": "boolean"
+                },
+                "follow_clade_color": {
+                  "type": "boolean"
+                },
+                "size_u": {
+                  "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+                  "type": "number",
+                  "minimum": 5.294506949040371,
+                  "maximum": 19.85440105890139
+                }
+              },
+              "additionalProperties": false
+            },
+            "nodes": {
+              "type": "object",
+              "properties": {
+                "automatic_size": {
+                  "type": "boolean"
+                },
+                "preferred_size_pt": {
+                  "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+                  "type": "number",
+                  "minimum": 6.75,
+                  "maximum": 24
+                },
+                "minimum_size_pt": {
+                  "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+                  "type": "number",
+                  "minimum": 6.75,
+                  "maximum": 13.5
+                },
+                "family": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "description": "CSS font-family value. Figure defaults prefer real installed Arial for all typography. Arial requests use real installed Arial when available; otherwise explicitly switch to bundled Arimo, reflow and report the actual font in normalized options, warnings and SVG metadata. Arial remains a system-font reference in SVG; fallback Arimo subsets are embedded. Georgia, Times, Helvetica and PingFang legacy requests map to bundled alternatives whose required subsets are embedded."
+                },
+                "preferred_size": {
+                  "type": "number",
+                  "minimum": 9,
+                  "maximum": 32
+                },
+                "minimum_size": {
+                  "type": "integer",
+                  "minimum": 9,
+                  "maximum": 18
+                },
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-f]{6}$",
+                  "description": "Six-digit hexadecimal color such as #0072B2."
+                },
+                "bold": {
+                  "type": "boolean"
+                },
+                "italic": {
+                  "type": "boolean"
+                },
+                "preferred_size_u": {
+                  "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+                  "type": "number",
+                  "minimum": 5.956320317670417,
+                  "maximum": 21.178027796161484
+                },
+                "minimum_size_u": {
+                  "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+                  "type": "number",
+                  "minimum": 5.956320317670417,
+                  "maximum": 11.912640635340834
+                }
+              },
+              "additionalProperties": false
+            },
+            "clades": {
+              "type": "object",
+              "properties": {
+                "size_pt": {
+                  "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+                  "type": "number",
+                  "minimum": 6,
+                  "maximum": 26.25
+                },
+                "family": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "description": "CSS font-family value. Figure defaults prefer real installed Arial for all typography. Arial requests use real installed Arial when available; otherwise explicitly switch to bundled Arimo, reflow and report the actual font in normalized options, warnings and SVG metadata. Arial remains a system-font reference in SVG; fallback Arimo subsets are embedded. Georgia, Times, Helvetica and PingFang legacy requests map to bundled alternatives whose required subsets are embedded."
+                },
+                "size": {
+                  "type": "number",
+                  "minimum": 8,
+                  "maximum": 35
+                },
+                "follow_tip_size": {
+                  "type": "boolean"
+                },
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-f]{6}$",
+                  "description": "Six-digit hexadecimal color such as #0072B2."
+                },
+                "bold": {
+                  "type": "boolean"
+                },
+                "italic": {
+                  "type": "boolean"
+                },
+                "follow_clade_color": {
+                  "type": "boolean"
+                },
+                "size_u": {
+                  "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+                  "type": "number",
+                  "minimum": 5.294506949040371,
+                  "maximum": 23.16346790205162
+                }
+              },
+              "additionalProperties": false
+            },
+            "scale": {
+              "type": "object",
+              "properties": {
+                "size_pt": {
+                  "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+                  "type": "number",
+                  "minimum": 5.25,
+                  "maximum": 18
+                },
+                "family": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "description": "CSS font-family value. Figure defaults prefer real installed Arial for all typography. Arial requests use real installed Arial when available; otherwise explicitly switch to bundled Arimo, reflow and report the actual font in normalized options, warnings and SVG metadata. Arial remains a system-font reference in SVG; fallback Arimo subsets are embedded. Georgia, Times, Helvetica and PingFang legacy requests map to bundled alternatives whose required subsets are embedded."
+                },
+                "size": {
+                  "type": "integer",
+                  "minimum": 7,
+                  "maximum": 24
+                },
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-f]{6}$",
+                  "description": "Six-digit hexadecimal color such as #0072B2."
+                },
+                "bold": {
+                  "type": "boolean"
+                },
+                "italic": {
+                  "type": "boolean"
+                },
+                "size_u": {
+                  "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+                  "type": "number",
+                  "minimum": 4.632693580410324,
+                  "maximum": 15.883520847121112
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "time": {
+          "type": "object",
+          "properties": {
+            "period_size_pt": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "number",
+              "minimum": 3,
+              "maximum": 24
+            },
+            "epoch_size_pt": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "number",
+              "minimum": 3,
+              "maximum": 24
+            },
+            "legend_size_pt": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "number",
+              "minimum": 3,
+              "maximum": 24
+            },
+            "axis_size_pt": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "number",
+              "minimum": 3,
+              "maximum": 24
+            },
+            "unit_size_pt": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "number",
+              "minimum": 3,
+              "maximum": 24
+            },
+            "key_size_pt": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "number",
+              "minimum": 3,
+              "maximum": 24
+            },
+            "age_minimum": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "age_maximum": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "show_node_ages": {
+              "type": "boolean"
+            },
+            "show_hpd": {
+              "type": "boolean"
+            },
+            "geology": {
+              "type": "string",
+              "enum": [
+                "standard",
+                "none"
+              ]
+            },
+            "age_decimals": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 3
+            },
+            "source_unit": {
+              "type": "string",
+              "enum": [
+                "unconfirmed",
+                "years",
+                "kyr",
+                "mya"
+              ]
+            },
+            "display_unit": {
+              "type": "string",
+              "enum": [
+                "same",
+                "years",
+                "kyr",
+                "mya"
+              ]
+            },
+            "age_source": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "height",
+                "height_mean",
+                "height_median",
+                "branch_lengths"
+              ]
+            },
+            "hpd_scope": {
+              "type": "string",
+              "enum": [
+                "all",
+                "named_clades"
+              ]
+            },
+            "hpd_marker": {
+              "type": "string",
+              "enum": [
+                "none",
+                "height_mean",
+                "height_median"
+              ]
+            },
+            "hpd_color": {
+              "type": "string",
+              "pattern": "^#[0-9a-f]{6}$",
+              "description": "Six-digit hexadecimal color such as #0072B2."
+            },
+            "hpd_opacity": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 1
+            },
+            "hpd_thickness": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 16
+            },
+            "period_size_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 2.6472534745201854,
+              "maximum": 21.178027796161484
+            },
+            "epoch_size_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 2.6472534745201854,
+              "maximum": 21.178027796161484
+            },
+            "legend_size_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 2.6472534745201854,
+              "maximum": 21.178027796161484
+            },
+            "axis_size_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 2.6472534745201854,
+              "maximum": 21.178027796161484
+            },
+            "unit_size_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 2.6472534745201854,
+              "maximum": 21.178027796161484
+            },
+            "key_size_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 2.6472534745201854,
+              "maximum": 21.178027796161484
+            },
+            "hpd_thickness_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 1.3236267372600927,
+              "maximum": 10.589013898080742
+            }
+          },
+          "additionalProperties": false
+        },
+        "cloud": {
+          "type": "object",
+          "properties": {
+            "show_time_axis": {
+              "type": "boolean"
+            },
+            "species_method": {
+              "type": "string",
+              "enum": [
+                "ml",
+                "dated",
+                "coalescent",
+                "other"
+              ]
+            },
+            "genes_method": {
+              "type": "string",
+              "enum": [
+                "ml",
+                "coalescent",
+                "other"
+              ]
+            },
+            "dated_unit": {
+              "type": "string",
+              "enum": [
+                "unconfirmed",
+                "relative",
+                "years",
+                "kyr",
+                "mya"
+              ]
+            },
+            "dated_age_source": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "height",
+                "height_mean",
+                "height_median",
+                "branch_lengths"
+              ]
+            },
+            "root_age": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "root_age_unit": {
+              "type": "string",
+              "enum": [
+                "relative",
+                "years",
+                "kyr",
+                "mya"
+              ]
+            },
+            "opacity": {
+              "type": "number",
+              "minimum": 2,
+              "maximum": 60
+            },
+            "jitter": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "show_gene": {
+              "type": "boolean"
+            },
+            "show_species": {
+              "type": "boolean"
+            },
+            "show_pies": {
+              "type": "boolean"
+            },
+            "species_shape": {
+              "type": "string",
+              "enum": [
+                "triangular",
+                "rectangular"
+              ]
+            },
+            "ladderize": {
+              "type": "string",
+              "enum": [
+                "file",
+                "small-top",
+                "large-top"
+              ]
+            },
+            "pie_mode": {
+              "type": "string",
+              "enum": [
+                "two",
+                "four"
+              ]
+            },
+            "pie_radius": {
+              "description": "Legacy dimension in the fixed reference design. Converted to drawing units, then scaled with print width; use the corresponding _u field for new requests.",
+              "type": "number",
+              "minimum": 8,
+              "maximum": 54
+            },
+            "pie_legend_position": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "upper-left",
+                "middle-left",
+                "lower-left"
+              ]
+            },
+            "pie_legend_scale": {
+              "type": "integer",
+              "minimum": 75,
+              "maximum": 200
+            },
+            "pie_age_minimum": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "pie_age_maximum": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "hidden_pies": {
+              "maxItems": 5000,
+              "type": "array",
+              "items": {
+                "minItems": 2,
+                "maxItems": 5000,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1000
+                }
+              }
+            },
+            "phyparts_outgroups": {
+              "maxItems": 5000,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              }
+            },
+            "phyparts_root_policy": {
+              "type": "string",
+              "enum": [
+                "outgroup",
+                "input"
+              ]
+            },
+            "phyparts_threshold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 99.9
+            },
+            "phyparts_field": {
+              "type": "string",
+              "enum": [
+                "first",
+                "last"
+              ]
+            },
+            "phyparts_scale": {
+              "type": "string",
+              "enum": [
+                "auto",
+                "percent",
+                "probability"
+              ]
+            },
+            "pie_radius_u": {
+              "description": "Drawing units: complete figure width = 1000. Independent of print width and DPI; supersedes the corresponding legacy dimension.",
+              "type": "number",
+              "minimum": 5.294506949040371,
+              "maximum": 35.7379219060225
+            }
+          },
+          "additionalProperties": false
+        },
+        "conflict": {
+          "type": "object",
+          "properties": {
+            "sample_policy": {
+              "type": "string",
+              "enum": [
+                "intersection",
+                "union"
+              ]
+            },
+            "primary_title": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "secondary_title": {
+              "type": "string",
+              "maxLength": 80
+            },
+            "primary_ladder": {
+              "type": "string",
+              "enum": [
+                "file",
+                "small-top",
+                "large-top"
+              ]
+            },
+            "primary_support_field": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "secondary_support_field": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120
+            },
+            "primary_support_scale": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "pattern": "^(?:auto|probability|percent)(?:\\/(?:auto|probability|percent))*$",
+              "description": "auto rejects ambiguous fractional-only or mixed-unit sources; use probability or percent explicitly; for compound columns, declare one unit per column separated by /, for example probability/percent."
+            },
+            "secondary_support_scale": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "pattern": "^(?:auto|probability|percent)(?:\\/(?:auto|probability|percent))*$",
+              "description": "auto rejects ambiguous fractional-only or mixed-unit sources; use probability or percent explicitly; for compound columns, declare one unit per column separated by /, for example probability/percent."
+            },
+            "primary_order": {
+              "anyOf": [
+                {
+                  "minItems": 2,
+                  "maxItems": 5000,
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "clades": {
+      "default": [],
+      "maxItems": 200,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "clade_id": {
+            "description": "Stable group identifier. Omit on creation to let PhyloRender assign one.",
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9._:-]+$"
+          },
+          "mrca_of": {
+            "minItems": 1,
+            "maxItems": 5000,
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            },
+            "description": "One tip label defines a single-sample group; multiple tip labels define the colored MRCA clade."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "name_segments": {
+            "description": "Consecutive rich-text parts of one clade-bar label. Their text values are concatenated in order; when name is also supplied, it must equal that concatenation exactly.",
+            "minItems": 1,
+            "maxItems": 60,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120,
+                  "description": "Exact text for this consecutive part of the clade-bar label. Spaces may be retained at either edge to separate adjacent parts."
+                },
+                "family": {
+                  "description": "Font family for only this text segment. Omit to inherit the global clade-label font.",
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "size": {
+                  "description": "Font size in SVG pixels for only this segment. Omit to inherit the global clade-label size.",
+                  "type": "integer",
+                  "minimum": 8,
+                  "maximum": 30
+                },
+                "size_pt": {
+                  "description": "Legacy point-reference font size, converted to drawing units; scales with print width. Prefer size_u.",
+                  "type": "number",
+                  "minimum": 6,
+                  "maximum": 22.5
+                },
+                "size_u": {
+                  "description": "Font size in drawing units. The complete figure width is 1000 units; this field supersedes legacy size_pt.",
+                  "type": "number",
+                  "minimum": 5.294506949040371,
+                  "maximum": 19.85440105890139
+                },
+                "color": {
+                  "description": "Text color for only this segment of one group. Omit to inherit that group's color; there is no global clade-label color.",
+                  "type": "string",
+                  "pattern": "^#[0-9a-f]{6}$"
+                },
+                "bold": {
+                  "description": "Set true or false to override boldness for this segment. Omit to inherit the global clade-label weight.",
+                  "type": "boolean"
+                },
+                "italic": {
+                  "description": "Set true or false to override italics for this segment. Omit to inherit the global clade-label style.",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "text"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "color": {
+            "type": "string",
+            "pattern": "^#[0-9a-f]{6}$",
+            "description": "Six-digit hexadecimal color such as #0072B2."
+          },
+          "label_orientation": {
+            "description": "Default auto: prefer compact rotated labels in aligned Dating/cloud groups; nearby phylogeny groups retain horizontal labels when they fit unused name space. Overlapping groups use separate columns. Explicit horizontal/vertical remains fixed.",
+            "type": "string",
+            "enum": [
+              "auto",
+              "horizontal",
+              "vertical"
+            ]
+          },
+          "bar_style": {
+            "description": "Clade bracket line style. Default auto uses solid bars for single-layer or innermost clades, cap-locked dashed vertical bars with solid horizontal end caps for first-level outer clades, and dash-dot bars for higher-order outer clades.",
+            "type": "string",
+            "enum": [
+              "auto",
+              "solid",
+              "dashed",
+              "dash-dot"
+            ]
+          },
+          "tier": {
+            "description": "Optional explicit bracket tier (0 = innermost column, 1 = first outer column, etc.) so peer taxonomic ranks such as subfamilies align in the same outer dashed column even when some lack annotated subclades. Null or omitted derives tier automatically from clade nesting.",
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 5
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "mrca_of"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "label_adjustments": {
+      "default": [],
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "branch_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160,
+            "pattern": "^[A-Za-z0-9._:-]+$",
+            "description": "Stable branch identifier returned by inspect_figure; never use an internal node id."
+          },
+          "dx": {
+            "description": "Horizontal label-box offset from the true node in SVG pixels.",
+            "type": "number",
+            "minimum": -10000,
+            "maximum": 10000
+          },
+          "dy": {
+            "description": "Vertical label-box offset from the true node in SVG pixels.",
+            "type": "number",
+            "minimum": -10000,
+            "maximum": 10000
+          },
+          "font_reduction": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 15
+          },
+          "dx_u": {
+            "type": "number",
+            "minimum": -10000,
+            "maximum": 10000
+          },
+          "dy_u": {
+            "type": "number",
+            "minimum": -10000,
+            "maximum": 10000
+          },
+          "font_reduction_u": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 9.927200529450696
+          }
+        },
+        "required": [
+          "branch_id"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "main_tree"
+  ],
+  "additionalProperties": false,
+  "title": "PhyloRender figure specification: physical units",
+  "description": "pt typography, em row spacing, mm figure width, DPI raster density. Legacy logical-pixel parameters remain accepted. Aggregate tree-text limits are additionally checked by the runtime."
+}

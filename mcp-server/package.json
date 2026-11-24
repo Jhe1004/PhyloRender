@@ -1,0 +1,51 @@
+{
+  "name": "phylorender-mcp-server",
+  "version": "0.8.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP interface for deterministic, publication-oriented phylogenetic tree rendering with PhyloRender.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/stdio.mjs",
+    "start:http": "node src/http.mjs",
+    "test:leader-cost": "node tests/leader-cost-calibration.mjs",
+    "test:time-typography": "node tests/time-typography.mjs",
+    "test:workbench": "node tests/workbench-navigation.mjs",
+    "test:point-inputs": "node tests/compact-point-inputs.mjs",
+    "test:font-floor": "node tests/seven-point-floor.mjs",
+    "test:fonts": "node tests/real-arial.mjs",
+    "test:node-weight": "node tests/node-weight-default.mjs",
+    "test:cloud-pie-range": "node tests/cloud-pie-age-range.mjs",
+    "test:cloud-pie-time-size": "node tests/cloud-pie-time-size.mjs",
+    "test:cloud-full-phyparts": "node tests/cloud-full-phyparts.mjs",
+    "test:dated-clade-defaults": "node tests/dated-clade-defaults.mjs",
+    "test:dated-tip-density": "node tests/dated-tip-density.mjs",
+    "test:dense-dating-labels": "node tests/dense-dating-labels.mjs",
+    "test:panel-resize": "node tests/panel-resize.mjs",
+    "test:default-fit-width": "node tests/default-fit-width.mjs",
+    "test:output-width-cap": "node tests/output-width-cap.mjs",
+    "test:unified-output-layout": "node tests/unified-output-layout.mjs",
+    "test:parity": "node tests/web-mcp-parity.mjs",
+    "test:cloud-imported-dating": "node tests/cloud-imported-dating.mjs",
+    "test:cloud-time-background": "node tests/cloud-time-background.mjs",
+    "test:cloud-clades": "node tests/cloud-clades.mjs",
+    "test:ordinary-demo": "node tests/ordinary-demo.mjs",
+    "test:tree-validation": "node tests/tree-input-validation.mjs",
+    "test:clade-alignment": "node tests/clade-bar-alignment.mjs",
+    "test:clade-group-color": "node tests/clade-group-color.mjs",
+    "test:empty-startup": "node tests/empty-startup.mjs",
+    "test:left-io": "node tests/left-io.mjs",
+    "test": "node tests/left-io.mjs && node tests/empty-startup.mjs && node tests/cloud-ladderization.mjs && node tests/cloud-default-startup.mjs && node tests/taxon-name-italic.mjs && node tests/conflict-tip-italic.mjs && node tests/node-weight-default.mjs && node tests/conflict-name-mismatch.mjs && node tests/conflict-connector-clearance.mjs && node tests/adjacent-clade-bars.mjs && node tests/gap-candidates.mjs && node tests/seven-point-floor.mjs && node tests/final-geometry.mjs && node tests/font-leader-balance.mjs && node tests/svg-only-default.mjs && node tests/store-versioning.mjs && node tests/mcp-smoke.mjs && node tests/http-smoke.mjs && node tests/physical-units.mjs && node tests/drawing-units.mjs && node tests/output-width-cap.mjs && node tests/unified-output-layout.mjs && node tests/readable-layout.mjs && node tests/time-tree-options.mjs && node tests/time-typography.mjs && node tests/dense-dating-labels.mjs && node tests/cloud-pie-visibility.mjs && node tests/web-mcp-parity.mjs && node tests/workbench-navigation.mjs && node tests/compact-point-inputs.mjs && node tests/cloud-time-background.mjs",
+    "install-browser": "playwright install chromium"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "express": "5.1.0",
+    "jszip": "^3.10.1",
+    "playwright": "1.61.1",
+    "zod": "4.6.7"
+  },
+  "license": "GPL-3.0-or-later"
+}

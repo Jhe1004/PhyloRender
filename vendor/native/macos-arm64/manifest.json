@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "platform": "Darwin arm64",
+  "recipe": "tools/build_treepl_macos.py",
+  "inputs": "tools/native_build_manifest.json",
+  "openmp_source_rebuilt": true,
+  "components": {
+    "treePL": "pinned upstream archive",
+    "ADOL-C": "2.6.3",
+    "NLopt": "2.4.2 (static)",
+    "OpenMP": "20.1.8"
+  },
+  "compiler": "Apple clang version 21.0.0 (clang-2100.1.1.101)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+  "sdk": "macOS 26.5 SDK, Apple Command Line Tools",
+  "cmake": "3.31.6",
+  "cmake_binary_sha256": "cb2cbe87f7a7914bec020cf4afcda9c0e64ded2c69ed70a75cd46a2b45674c80",
+  "recipe_tools_sha256": {
+    "build_treepl_macos.py": "206c59bbba844bfe5a0b855831414f7313efc18b6fb4c66a3eec7897a935c390",
+    "openmp_build.py": "96dc87593428e0ed50a6944c5351e85b1a064d69d4ce9cdec0aab8d2f9f2b004",
+    "native_build_support.py": "a74bd2962c6ebda90ceefbde7af13aeb965e31f31f87e5d2bfa9f100b4306d30"
+  },
+  "repeat_build": {
+    "independent_clean_directories": 2,
+    "different_path_lengths": true,
+    "comparison": "complete files, including load commands and signatures",
+    "files": [
+      {
+        "file": "treePL",
+        "sha256": "9029eda14113d39b0476e1c30a63b295577ea110e4f64dd75cf4fa821ce1cf6b",
+        "second_sha256": "9029eda14113d39b0476e1c30a63b295577ea110e4f64dd75cf4fa821ce1cf6b",
+        "bytes": 656240,
+        "exact": true
+      },
+      {
+        "file": "libadolc.2.dylib",
+        "sha256": "09f8b082e44dedc26e7c8a9ef5681eb9e4b05df47058c80f812f17a9aadad7db",
+        "second_sha256": "09f8b082e44dedc26e7c8a9ef5681eb9e4b05df47058c80f812f17a9aadad7db",
+        "bytes": 688976,
+        "exact": true
+      },
+      {
+        "file": "libomp.dylib",
+        "sha256": "dbe541f291364f7381edf6eb1ebfd76f5a4e8778a303b5f277139ea08230bb0b",
+        "second_sha256": "dbe541f291364f7381edf6eb1ebfd76f5a4e8778a303b5f277139ea08230bb0b",
+        "bytes": 828272,
+        "exact": true
+      }
+    ]
+  },
+  "science_checks": {
+    "managed": true,
+    "synthetic_4_tip_and_ml_57_tip_exact_newick": true,
+    "analysis_kind": "display_alignment",
+    "universal_scientific_equivalence_claim": false
+  },
+  "signing": "ad-hoc; fixed identifier; no timestamp; not notarized",
+  "scope": "Reproducible bundled files under the recorded compiler and SDK; not a byte-reproducible operating system/toolchain."
+}

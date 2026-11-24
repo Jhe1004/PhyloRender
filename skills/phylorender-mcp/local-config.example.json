@@ -1,0 +1,5 @@
+{
+  "repoRoot": "/absolute/path/to/PhyloRender",
+  "stateRoot": "~/.phylorender/local-mcp",
+  "localEndpoint": "http://127.0.0.1:8766/mcp"
+}

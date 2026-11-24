@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "release_status": "approved",
+  "project_license": "GPL-3.0-or-later",
+  "phyparts_redistribution_permission": "not_applicable_no_upstream_code_or_binary_distributed",
+  "approval_evidence": "docs/RELEASE_PERMISSION_EVIDENCE.md",
+  "approval_scope": "permission_records_for_source_distribution_candidate",
+  "reason": "Implements the owner's existing GPL-3.0-or-later and existing-demo public-distribution decisions, with retained third-party grants, corresponding native sources/build steps and inspected source contents. The sanitized browser base passed actual filesystem and saved-layer inspection. This is source-permission evidence, not authorization to publish/deploy a service or distribute an unchecked binary image.",
+  "application_image_acceptance": "requires_separate_exact_artifact_and_runtime_evidence",
+  "demo_data_permission": "owner_confirmed_existing_demo_public_distribution",
+  "demo_data_evidence": "docs/DEMO_DATA_PERMISSION.md"
+}

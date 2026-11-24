@@ -1,0 +1,23 @@
+{
+  "id": "conflict-12",
+  "spec": {
+    "workspace": "conflict",
+    "main_tree": {
+      "name": "primary-12.nwk",
+      "content": "(((Taxon_001:2,(Taxon_002:1,Taxon_003:1)0.95:1)0.95:1,(Taxon_004:2,(Taxon_005:1,Taxon_006:1)0.95:1)0.95:1)0.95:1,((Taxon_007:2,(Taxon_008:1,Taxon_009:1)0.95:1)0.95:1,(Taxon_010:2,(Taxon_011:1,Taxon_012:1)0.95:1)0.95:1)0.95:1)0.95;"
+    },
+    "comparison_tree": {
+      "name": "comparison-12.nwk",
+      "content": "(((Taxon_001:2,(Taxon_004:1,Taxon_003:1)90:1)90:1,(Taxon_002:2,(Taxon_005:1,Taxon_006:1)90:1)90:1)90:1,((Taxon_007:2,(Taxon_008:1,Taxon_009:1)90:1)90:1,(Taxon_010:2,(Taxon_011:1,Taxon_012:1)90:1)90:1)90:1)90;"
+    },
+    "options": {
+      "conflict": {
+        "primary_support_scale": "probability",
+        "secondary_support_scale": "percent"
+      }
+    }
+  },
+  "synthetic": true,
+  "inferential_claim": "none",
+  "input_origin": "Original deterministic artificial topology, lengths, supports and intervals"
+}

@@ -1,0 +1,1271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhyloRender — Publication-Ready Phylogenetic Figures</title>
+  <link rel="stylesheet" href="vendor/fonts/phylorender-fonts.css?v=20260810-font-portability1">
+  <link rel="stylesheet" href="styles.css?v=20261005-left-io1">
+  <link rel="stylesheet" href="ui-shell.css?v=20261005-left-io1">
+  <link rel="stylesheet" href="ui-controls.css?v=20261015-ui-consistency1" data-phylorender-ui-only>
+</head>
+<body>
+  <section id="tree-loading" class="tree-loading" role="dialog" aria-modal="true" aria-labelledby="tree-loading-title" tabindex="-1" data-state="running">
+    <div class="tree-loading-card">
+      <div class="tree-loading-brand"><span class="tree-loading-spinner" aria-hidden="true"></span>PhyloRender</div>
+      <h2 id="tree-loading-title">Opening Figure Workbench</h2>
+      <p id="tree-loading-detail" role="status" aria-live="polite">Initializing rendering modules and reading tree inputs...</p>
+      <progress id="tree-loading-bar" max="8" value="0" aria-label="Tree loading stage progress"></progress>
+      <div class="export-progress-meta"><span id="tree-loading-stage">Preparing</span><span id="tree-loading-elapsed">Elapsed 0 s</span></div>
+      <p class="tree-loading-note">Optimizing collision-free label placement and leader lines. Dense phylogenies may take up to a few minutes; node counts and stages reflect completed steps rather than remaining time. Do not reload or re-import while rendering.</p>
+      <button id="tree-loading-close" class="button primary" type="button" hidden>Return to Workbench</button>
+      <button id="tree-loading-cancel" class="button" type="button" hidden>Cancel</button>
+      <noscript>Please enable JavaScript in your browser to run PhyloRender.</noscript>
+    </div>
+  </section>
+  <header class="topbar">
+    <div class="brand-lockup">
+      <h1>PhyloRender</h1>
+      <p id="app-subtitle">Automated multi-source node matching, collision-free label placement, and vector export</p>
+    </div>
+    <nav class="workspace-mode-switch" aria-label="Figure workspace" role="tablist">
+      <button type="button" data-workspace-mode="phylogeny" role="tab" aria-selected="false">
+        <span>Phylogram</span><small>Standard Phylogeny</small>
+      </button>
+      <button type="button" data-workspace-mode="time" role="tab" aria-selected="false">
+        <span>Time Tree</span><small>Chronogram &amp; HPD</small>
+      </button>
+      <button type="button" class="active" data-workspace-mode="cloud" role="tab" aria-selected="true">
+        <span>Cloudogram &amp; Discordance</span><small>Gene–Species Pies</small>
+      </button>
+      <button type="button" data-workspace-mode="conflict" role="tab" aria-selected="false">
+        <span>Tanglegram</span><small>Two-Tree Comparison</small>
+      </button>
+    </nav>
+  </header>
+
+  <main id="phylorender-layout">
+    <aside class="panel controls" id="settings-controls" data-active-page="data" aria-label="Figure settings">
+      <div class="settings-nav-shell" style="border-bottom:2px solid #8b8d92">
+        <div class="settings-nav-heading">
+          <div>
+            <span>Figure Workbench</span>
+          </div>
+          <small>Live styling updates · Re-optimize labels below</small>
+        </div>
+        <nav class="settings-nav" aria-label="Settings categories" style="border-bottom:0">
+          <button type="button" class="active" data-settings-target="data" aria-pressed="true">Data</button>
+          <button type="button" data-settings-target="tree" aria-pressed="false">Layout</button>
+          <button type="button" data-settings-target="tips" aria-pressed="false">Tip Labels</button>
+          <button type="button" data-settings-target="labels" aria-pressed="false">Annotations</button>
+          <button type="button" data-settings-target="background" aria-pressed="false" hidden>Time Scale</button>
+          <button type="button" data-settings-target="groups" aria-pressed="false">Clades</button>
+          <button type="button" data-settings-target="export" aria-pressed="false">Export</button>
+        </nav>
+        <div id="workbench-internal-diagnostics" hidden aria-hidden="true">
+        <div class="settings-status" aria-label="Current tree diagnostics">
+          <div><strong id="tip-count">0</strong><span id="tip-count-label">Tips</span></div>
+          <div><strong id="support-count">0</strong><span id="support-count-label">Node Labels</span></div>
+          <div><button id="locate-collision" type="button" title="Click to locate overlapping labels; click again for the next overlap"><strong id="collision-count">0</strong><span id="collision-count-label">Overlaps ↗</span></button></div>
+        </div>
+        <button id="label-warning-count" type="button" hidden></button>
+        <small id="issue-location-status" role="status" aria-live="polite"></small>
+        </div>
+        <small id="figure-font-notice" class="figure-font-notice" role="status" hidden></small>
+        <div id="message" class="message workbench-message" style="max-height:10em;overflow:auto;padding:7px 8px;border-left:2px solid #777b84" role="status" aria-live="polite" hidden></div>
+      </div>
+      <div class="settings-page-intro">
+        <h2 id="settings-page-title">Trees &amp; Node Data</h2>
+        <p id="settings-page-description">Import the primary tree first, then attach supplementary node support or metadata as needed.</p>
+      </div>
+
+      <section id="figure-export-section" class="settings-group cloud-shared conflict-shared" data-settings-page="export">
+        <h3>Export Formats</h3>
+        <div class="settings-group-body">
+          <div class="figure-export-actions" role="group" aria-label="Export figure">
+            <button id="export-svg" type="button" class="button primary">Export SVG</button>
+            <button id="export-png" type="button" class="button primary">Export PNG</button>
+            <button id="export-a4" type="button" class="button">Export Two-Panel Split</button>
+          </div>
+          <p class="hint">Exports reflect the current canvas and workbench settings. Two-panel split export is available only for tall trees (height &gt; 2× width with at least 10 tips) and isolates a major monophyletic clade into the second panel; unavailable for Tanglegram and Cloudogram workspaces.</p>
+        </div>
+      </section>
+
+      <details id="cloud-input-section" class="settings-group cloud-only" data-settings-page="data">
+        <summary><span class="settings-group-index">01</span><span><strong>Species Tree &amp; Gene Trees</strong><small>Full bipartition concordance; complete-taxon ML subset in cloudogram</small></span></summary>
+        <div class="settings-group-body conflict-file-grid">
+          <div class="conflict-file-card"><strong>Species Tree</strong><span id="cloud-species-name">Not imported</span><label for="cloud-species-method">Species tree input type</label><select id="cloud-species-method"><option value="">Select input type (required)</option><option value="ml">Undated ML phylogram · Calibrate via treePL</option><option value="dated">Time-calibrated chronogram · Preserve node ages</option><option value="coalescent">ASTRAL / coalescent-unit tree (discordance pies only)</option><option value="other">Cladogram / other topology (discordance pies only)</option></select>
+            <div id="cloud-crown-age-options" hidden>
+              <label id="cloud-root-age-label" for="cloud-root-age">Root / crown calibration age (required)</label><input id="cloud-root-age" type="number" min="0.000000001" step="any" placeholder="e.g. 70" required>
+              <label for="cloud-root-age-unit">Age unit</label><select id="cloud-root-age-unit"><option value="mya">Million years (Mya)</option><option value="kyr">Thousand years (kyr)</option><option value="years">Years (yr)</option><option value="relative">Relative / schematic units</option></select>
+              <p class="hint">Fixes this calibration age at the root of the input species tree and aligns shared gene-tree nodes to species-tree divergence ages for display. Outgroups are not automatically excluded; verify the calibration basis before citing ages.</p>
+            </div>
+            <div id="cloud-dated-options" hidden>
+              <label for="cloud-dated-age-source">Node age source</label><select id="cloud-dated-age-source"><option value="auto">Auto-select complete age annotation or time branch lengths</option><option value="branch_lengths">Time-calibrated branch lengths (treePL / MCMCtree)</option><option value="height">height (BEAST summary node height)</option><option value="height_mean">height_mean (posterior mean age)</option><option value="height_median">height_median (posterior median age)</option></select>
+              <label for="cloud-dated-unit">Source time unit</label><select id="cloud-dated-unit"><option value="unconfirmed">File units (unconfirmed)</option><option value="years">Years (yr)</option><option value="kyr">Thousand years (kyr)</option><option value="mya">Million years (Mya)</option><option value="relative">Relative / schematic units</option></select>
+              <p class="hint">Upload a single time-calibrated Newick or Nexus summary tree (e.g., BEAST MCC or MCMCtree), not an MCMC posterior tree chain. Input rooting and ages are preserved without running treePL or guessing time units.</p>
+            </div>
+            <label id="cloud-species-upload-label" class="button primary full" for="cloud-species-file">Select Species Tree</label><input id="cloud-species-file" type="file"></div>
+          <div class="conflict-file-card"><strong>Gene Tree Collection</strong><span id="cloud-genes-name">Not imported</span><label for="cloud-genes-method">Inference method</label><select id="cloud-genes-method"><option value="">Select method (required for cloudogram)</option><option value="ml">Maximum likelihood · substitutions/site</option><option value="coalescent">ASTRAL / coalescent tree</option><option value="other">Bayesian, time-calibrated, or other</option></select><label id="cloud-genes-upload-label" class="button primary full" for="cloud-genes-file">Select Gene Trees File</label><input id="cloud-genes-file" type="file" accept=".trees,.tree,.treefile,.nwk,.newick,.txt"></div>
+          <div id="cloud-validation" class="conflict-sample-summary" role="status">Import the species tree first, then upload the gene-tree collection.</div>
+          <p class="hint">The species tree may be an undated ML phylogram or a time-calibrated chronogram; cloudogram rendering requires ML gene trees with substitution branch lengths. Raw ASTRAL coalescent branch lengths cannot be time-calibrated directly. Disable the cloudogram layer if rendering only the species tree and discordance pies. Input files are never modified.</p>
+        </div>
+      </details>
+
+      <details class="settings-group cloud-only" data-settings-page="data">
+        <summary><span class="settings-group-index">02</span><span><strong>Gene-Tree Discordance Analysis</strong><small>Built-in JavaScript bipartition engine; no Java required</small></span></summary>
+        <div class="settings-group-body">
+          <span id="cloud-phyparts-name" class="file-name">Not imported</span>
+          <p id="cloud-phyparts-status" class="hint" role="status">Matches rooted bipartitions by exact descendant taxon sets on the species tree; discordance pie denominators are never restricted to the cloudogram-eligible subset.</p>
+          <button id="cloud-phyparts-recalculate" class="button full" type="button" disabled>Recalculate Discordance</button>
+          <details><summary>Discordance options &amp; node table</summary>
+            <label for="cloud-phyparts-outgroups">Outgroup taxa for gene-tree rooting (one original taxon label per line)</label>
+            <textarea id="cloud-phyparts-outgroups" rows="3" placeholder="Leave blank to auto-detect a single-taxon outgroup; list all taxa for multi-taxon outgroups"></textarea>
+            <p class="hint">Listed taxa must match one complete root child of the species tree without altering species-tree rooting or ages. Gene trees may lack some outgroup taxa, provided present outgroups form a single monophyletic bipartition; non-conforming gene trees are excluded individually and reported.</p>
+            <label for="cloud-phyparts-root-policy">Gene-tree rooting policy</label><select id="cloud-phyparts-root-policy"><option value="outgroup">Reroot each gene tree by species-tree outgroup clade</option><option value="input">Preserve input rooting (comparable roots confirmed)</option></select>
+            <label for="cloud-phyparts-threshold">Minimum branch support cutoff (%)</label><input id="cloud-phyparts-threshold" type="number" min="0" max="99.9" step="1" value="0">
+            <label for="cloud-phyparts-field">Multi-field support selection</label><select id="cloud-phyparts-field"><option value="last">Last / rightmost field (used for single field)</option><option value="first">First / leftmost field</option></select>
+            <label for="cloud-phyparts-scale">Support scale</label><select id="cloud-phyparts-scale"><option value="auto">Auto-detect across collection (rejects ambiguity)</option><option value="percent">Percentage (0–100)</option><option value="probability">Probability (0–1)</option></select>
+            <p class="hint">No support cutoff is applied by default. When a non-zero cutoff is set, only branches strictly exceeding the threshold are treated as informative; unannotated branches are treated as uninformative. Gene trees lacking outgroups, containing duplicate taxa, or carrying unmatched names are reported separately and excluded from denominators. Two-part and four-part pies share a single full calculation.</p>
+            <button id="cloud-phyparts-download" class="button full" type="button" disabled>Download Discordance Node Table</button>
+            <label class="button full" for="cloud-phyparts-file">Import Precomputed Node Table (optional)</label><input id="cloud-phyparts-file" type="file" accept=".tsv,.txt,text/tab-separated-values">
+          </details>
+        </div>
+      </details>
+
+      <details id="cloud-dating-section" class="settings-group cloud-only" data-settings-page="data">
+        <summary><span class="settings-group-index">03</span><span><strong>Divergence Time Alignment</strong><small>Species-tree calibration &amp; gene-tree display alignment</small></span></summary>
+        <div class="settings-group-body">
+          <p id="cloud-root-status" class="hint" role="status">Preserves the input species-tree root; automatic rerooting is never applied.</p>
+          <p id="cloud-dating-hint" class="hint">Undated ML species trees are calibrated via treePL, whereas time-calibrated species trees retain their original node ages; shared gene-tree clades are then aligned to species-tree divergence ages for display without forcing discordant clades to coincide. Default schematic root ages are for visualization only and must not be cited as divergence estimates.</p>
+        </div>
+      </details>
+
+      <details id="cloud-background-section" class="settings-group cloud-only" data-settings-page="tree">
+        <summary><span><strong>Gene-Tree Cloudogram Layer</strong><small>Visibility, stroke opacity, and branch jitter</small></span></summary>
+        <div class="settings-group-body">
+          <label class="check-row"><input id="cloud-show-gene" type="checkbox" checked> Show gene-tree cloudogram</label>
+          <label for="cloud-opacity">Gene-tree stroke opacity <output id="cloud-opacity-value">18%</output></label><input id="cloud-opacity" type="range" min="2" max="60" step="1" value="18">
+          <label for="cloud-jitter">Cloudogram branch jitter <output id="cloud-jitter-value">0%</output></label><input id="cloud-jitter" type="range" min="0" max="100" step="1" value="0">
+          <p class="hint">0 keeps straight segments; higher values deterministically disperse mid-branch trajectories while keeping tips and shared internal nodes anchored. Affects visual rendering only without altering divergence times, topologies, or discordance counts.</p>
+          <p class="hint">Baseline opacity scales automatically with the number of overlaid gene trees so sparse clouds stay clear and dense clouds remain legible. Branches inherit the most nested species-tree clade color spanning their descendant taxa; uncolored or cross-clade branches remain neutral gray.</p>
+          <p class="hint">Adjust cloudogram and species-tree geometry under Layout, and configure discordance pies under Annotations. Styling changes do not rerun calibration or discordance calculations.</p>
+        </div>
+      </details>
+
+      <details class="settings-group cloud-only" data-settings-page="tree">
+        <summary><span class="settings-group-index">01</span><span><strong>Species-Tree Overlay</strong><small>Visibility and backbone branch geometry</small></span></summary>
+        <div class="settings-group-body">
+          <label class="check-row"><input id="cloud-show-species" type="checkbox" checked> Show species tree</label>
+          <label for="cloud-species-shape">Species-tree branch geometry</label>
+          <select id="cloud-species-shape"><option value="triangular" selected>Triangular backbone</option><option value="rectangular">Rectangular phylogram</option></select>
+          <p id="cloud-layer-status" class="hint" role="status">All three layers toggle independently; hide the gene-tree cloudogram to switch species-tree branch geometry.</p>
+        </div>
+      </details>
+
+      <details id="cloud-branch-order-section" class="settings-group cloud-only" data-settings-page="tree">
+        <summary><span class="settings-group-index">03</span><span><strong>Sister-Clade Ordering</strong><small>Ladderize species tree; cloudogram &amp; pies follow</small></span></summary>
+        <div class="settings-group-body">
+          <label for="cloud-ladder-direction">Ladderization direction</label>
+          <select id="cloud-ladder-direction">
+            <option value="file">Preserve sister-clade order from file</option>
+            <option value="small-top" selected>Smaller sister clade on top</option>
+            <option value="large-top">Larger sister clade on top</option>
+          </select>
+          <p class="hint help-note" tabindex="0" data-detail="Rotates sister clades on the species tree by descendant tip count; all gene trees adopt the resulting tip order and discordance pies remain attached to their respective nodes. Topologies, branch lengths, calibration ages, and discordance statistics are unchanged."><span class="help-note-brief">Rotates sister clades for display without recalculation.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+        </div>
+      </details>
+
+      <details id="cloud-pie-age-range-section" class="settings-group cloud-only" data-settings-page="labels">
+        <summary><span class="settings-group-index">01</span><span><strong>Discordance Pie Age Filter</strong><small>Show pies only within a target age window</small></span></summary>
+        <div class="settings-group-body">
+          <p class="hint help-note" tabindex="0" data-detail="Filters node pies inclusively by their species-tree age coordinate. Updates pie visibility only without altering the cloudogram, species tree, calibration ages, or discordance statistics. Time-calibrated inputs use the confirmed or source time unit; undated ML inputs use schematic units."><span id="cloud-pie-age-unit-hint" class="help-note-brief">Filters pie visibility only; uses schematic units.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+          <div class="time-age-range-grid" role="group" aria-label="Discordance pie age display window">
+            <label for="cloud-pie-age-minimum">Minimum age<small>Hide pies younger than this bound</small></label>
+            <div class="time-age-range-input"><input id="cloud-pie-age-minimum" type="number" min="0" step="any" inputmode="decimal" placeholder="No limit" aria-label="Minimum age for displaying discordance pies"><span id="cloud-pie-age-minimum-unit">schematic units</span></div>
+            <label for="cloud-pie-age-maximum">Maximum age<small>Hide pies older than this bound</small></label>
+            <div class="time-age-range-input"><input id="cloud-pie-age-maximum" type="number" min="0" step="any" inputmode="decimal" placeholder="No limit" aria-label="Maximum age for displaying discordance pies"><span id="cloud-pie-age-maximum-unit">schematic units</span></div>
+          </div>
+          <button id="cloud-pie-age-range-reset" type="button" class="button compact">Clear Age Filter</button>
+          <p id="cloud-pie-age-range-status" class="time-age-range-status" role="status">No age filter applied; manually hidden pies remain hidden.</p>
+        </div>
+      </details>
+
+      <details id="cloud-pie-settings-section" class="settings-group cloud-only" data-settings-page="labels">
+        <summary><span class="settings-group-index">02</span><span><strong>Discordance Node Pies</strong><small>Two-part informative or four-part full composition</small></span></summary>
+        <div class="settings-group-body">
+          <label class="check-row"><input id="cloud-show-pies" type="checkbox" checked> Show node discordance pies</label>
+          <label for="cloud-pie-mode">Pie composition</label><select id="cloud-pie-mode"><option value="two" selected>Two-part: Concordant / Conflicting (informative loci only)</option><option value="four">Four-part: Concordant / Top conflict / Other conflict / Uninformative</option></select>
+          <label for="cloud-pie-legend-position">Pie legend position</label><select id="cloud-pie-legend-position"><option value="auto">Auto-avoidance</option><option value="upper-left">Upper left</option><option value="middle-left">Middle left</option><option value="lower-left" selected>Lower left (default)</option></select>
+          <label for="cloud-pie-legend-scale">Pie legend scale <output id="cloud-pie-legend-scale-value">150%</output></label><input id="cloud-pie-legend-scale" type="range" min="75" max="200" step="5" value="150">
+          <p id="cloud-pie-composition-status" class="hint" role="status">All four bipartition categories are always computed; two-part vs. four-part controls visual presentation only.</p>
+          <p class="hint">Click any pie chart or node marker on the canvas to show or hide individual pies without altering underlying counts.</p>
+          <label for="cloud-pie-radius">Maximum pie radius <output id="cloud-pie-radius-value">32 px</output></label><input id="cloud-pie-radius" type="range" min="8" max="54" step="1" value="32">
+          <p class="hint">Scales pie radius monotonically with node age relative to the species-tree root (older nodes larger, younger nodes smaller; never below ~5.29 u on the 1000-u canvas, and never scaled by clade tip count). Crowded pies are displaced or modestly reduced with leader lines pointing back to the node. Pie size does not encode gene count or concordance; hover to inspect exact counts.</p>
+          <button id="cloud-restore-hidden-pies" class="button full" type="button" hidden>Restore All Hidden Pies</button>
+        </div>
+      </details>
+
+      <details id="conflict-input-section" class="settings-group conflict-only" data-settings-page="data">
+        <summary><span class="settings-group-index">01</span><span><strong>Paired Input Trees</strong><small>Left primary tree sets taxon order; right comparison tree follows</small></span></summary>
+        <div class="settings-group-body conflict-file-grid">
+          <div class="conflict-file-card">
+            <strong>Left · Primary Tree</strong>
+            <span id="conflict-nuclear-name">Not imported</span>
+            <label class="button primary full" for="conflict-nuclear-file">Select Primary Tree</label>
+            <input id="conflict-nuclear-file" type="file">
+          </div>
+          <div class="conflict-file-card">
+            <strong>Right · Comparison Tree</strong>
+            <span id="conflict-plastid-name">Not imported</span>
+            <label class="button primary full" for="conflict-plastid-file">Select Comparison Tree</label>
+            <input id="conflict-plastid-file" type="file">
+          </div>
+          <button id="conflict-swap-trees" class="button full" type="button" disabled>Swap Primary &amp; Comparison Trees</button>
+          <label for="conflict-primary-title">Primary tree title</label>
+          <input id="conflict-primary-title" type="text" value="Primary tree" maxlength="80">
+          <label for="conflict-secondary-title">Comparison tree title</label>
+          <input id="conflict-secondary-title" type="text" value="Comparison tree" maxlength="80">
+          <p class="hint">Compares any two Newick or Nexus trees (e.g., nuclear vs. plastid/mitochondrial, ML vs. Bayesian). The left tree always serves as the primary reference; each side scales independently by its own branch-length units.</p>
+        </div>
+      </details>
+
+      <details id="conflict-sample-section" class="settings-group conflict-only" data-settings-page="data">
+        <summary><span class="settings-group-index">02</span><span><strong>Taxon Set Reconciliation</strong><small>Inspect unmatched taxa and select retention policy</small></span></summary>
+        <div class="settings-group-body">
+          <label for="conflict-sample-policy">Taxon retention policy</label>
+          <select id="conflict-sample-policy">
+            <option value="" selected>Inspect differences and choose policy</option>
+            <option value="intersection">Retain shared taxa only (intersection)</option>
+            <option value="union">Retain all taxa from both trees (union)</option>
+          </select>
+          <div id="conflict-sample-summary" class="conflict-sample-summary" role="status">Import both trees first</div>
+          <div id="conflict-sample-differences" class="conflict-sample-differences"></div>
+          <p class="hint">Unmatched taxa are never silently pruned or retained. Intersection prunes unmatched tips from both trees and collapses resulting degree-2 nodes; union retains all tips without drawing connectors for unmatched taxa. Re-confirm whenever either tree file is replaced.</p>
+        </div>
+      </details>
+
+      <details id="conflict-layout-section" class="settings-group conflict-only" data-settings-page="tree">
+        <summary><span class="settings-group-index">01</span><span><strong>Primary Ordering &amp; Tangle Minimization</strong><small>Ladderize or swap clades on left; right tree untangles</small></span></summary>
+        <div class="settings-group-body">
+          <label for="conflict-primary-ladder">Primary tree ladderization</label>
+          <select id="conflict-primary-ladder">
+            <option value="file">Preserve input sister-clade order</option>
+            <option value="small-top" selected>Smaller sister clade on top</option>
+            <option value="large-top">Larger sister clade on top</option>
+          </select>
+          <p class="hint">Right-click any internal node on the left primary tree to swap its two descendant clades manually. The comparison tree automatically reorders to minimize connector crossings; changing ladderization resets from file order.</p>
+          <button id="conflict-optimize" class="button primary full" type="button" disabled>Re-optimize Connector Crossings</button>
+          <div id="conflict-optimization-status" class="conflict-optimization-status" role="status">Optimized automatically once both trees are loaded</div>
+          <p class="hint">Crossing minimization rotates sister clades on the right comparison tree only; primary tree order, topologies, support values, and branch lengths are never altered.</p>
+        </div>
+      </details>
+
+      <details id="conflict-group-section" class="settings-group conflict-only" data-settings-page="data">
+        <summary><span class="settings-group-index">03</span><span><strong>Clade Grouping &amp; Palette</strong><small>Defined on primary tree; comparison tree &amp; connectors inherit colors</small></span></summary>
+        <div class="settings-group-body">
+          <p id="conflict-group-status" class="hint" role="status">Major clades are detected and colored automatically upon loading the primary tree.</p>
+          <label class="button full" for="conflict-group-file">Import Taxon Group Table (optional)</label>
+          <input id="conflict-group-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values">
+          <button id="conflict-group-template" class="button full" type="button" disabled>Download Group Template CSV</button>
+          <button id="conflict-group-clear" class="button full" type="button" hidden>Remove Group Table &amp; Restore Auto-Grouping</button>
+          <p class="hint">CSV/TSV columns per row: taxon name, group name, optional hex color (#RRGGBB); header row may be sample,group,color. Explicit group tables take precedence over in-tree group/clade annotations; ungrouped tips and polyphyletic ancestral branches remain neutral gray.</p>
+        </div>
+      </details>
+
+      <details class="settings-group tree-source-section" data-settings-page="data">
+        <summary><span class="settings-group-index">01</span><span><strong id="tree-source-title">Primary Tree</strong><small id="tree-source-subtitle">Import and verify reference topology</small></span></summary>
+        <div class="settings-group-body">
+        <section id="dating-import-step-1" class="tree-import-step">
+          <div class="time-setting-heading dating-import-step-heading dating-import-only" hidden>
+            <strong>Step 1 — Import Chronogram</strong>
+            <span>Select and validate time-calibrated tree file</span>
+          </div>
+          <div id="file-name" class="file-name">Not imported</div>
+          <textarea id="newick-input" hidden aria-hidden="true"></textarea>
+          <label id="main-tree-file-label" class="button primary full main-tree-file-button" for="tree-file">Select Primary Tree File</label>
+          <input id="tree-file" type="file" hidden>
+          <div class="support-only-controls conflict-hide"><label for="support-scale">Primary tree support scale</label><select id="support-scale"><option value="auto">Auto-detect per column</option><option value="probability">Probability (0–1)</option><option value="percent">Percentage (0–100)</option><option value="probability/percent">Composite: Probability / Percentage</option><option value="percent/probability">Composite: Percentage / Probability</option></select><p class="hint">Values strictly within 0–1 could represent either probabilities or low percentages and require explicit confirmation; display rounding does not alter raw scale validation. Supplementary sources are configured individually.</p></div>
+          <p id="main-tree-file-hint" class="hint help-note main-tree-file-hint" tabindex="0" data-detail="Accepts Newick and Nexus trees with any file extension. Trees are parsed strictly under the active workspace selected in the top bar; format diagnostics never switch workspaces automatically or modify input files."><span class="help-note-brief">Parsed under the active workspace mode.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+        </section>
+
+        <section id="time-input-section" class="dating-import-step dating-import-only" data-settings-page="data" aria-labelledby="dating-import-step-2-title" hidden style="margin-top:18px;padding-top:16px;border-top:2px solid #c7d2cc">
+          <div class="time-setting-heading dating-import-step-heading">
+            <strong id="dating-import-step-2-title">Step 2 — Confirm Time Unit &amp; Age Source</strong>
+            <span>Verify chronological metadata semantics</span>
+          </div>
+          <div id="time-detection-status" class="time-detection-status" role="status">Awaiting chronogram import</div>
+          <div class="time-setting-block time-unit-block">
+            <div class="time-setting-heading">
+              <strong>Confirm Time Unit</strong>
+              <span>Verify input file units before choosing axis units</span>
+            </div>
+            <label for="time-source-unit">Age unit in tree file</label>
+            <select id="time-source-unit">
+              <option value="unconfirmed" selected>Unconfirmed (do not label Mya)</option>
+              <option value="years">Years (yr)</option>
+              <option value="kyr">Thousand years (kyr)</option>
+              <option value="mya">Million years (Mya)</option>
+            </select>
+            <label for="time-display-unit">Axis display unit</label>
+            <select id="time-display-unit" disabled>
+              <option value="same" selected>Same as tree file</option>
+              <option value="years">Years (yr)</option>
+              <option value="kyr">Thousand years (kyr)</option>
+              <option value="mya">Million years (Mya)</option>
+            </select>
+            <p id="time-unit-status" class="hint time-unit-status">Time unit not yet confirmed; the time axis displays raw values and the geologic time scale remains hidden.</p>
+          </div>
+          <div class="time-setting-block">
+            <div class="time-setting-heading">
+              <strong>Node Age Statistic</strong>
+              <span>Select the summary statistic for node coordinates &amp; labels</span>
+            </div>
+            <label for="time-age-source">Node age source</label>
+            <select id="time-age-source">
+              <option value="auto" selected>Auto-select complete age annotation or time branch lengths</option>
+              <option value="branch_lengths">Time-calibrated branch lengths (ultrametric)</option>
+              <option value="height">height (summary node height)</option>
+              <option value="height_mean">height_mean (posterior mean age)</option>
+              <option value="height_median">height_median (posterior median age)</option>
+            </select>
+            <p class="hint">A single uniform age source governs all horizontal coordinates and node age labels across the entire tree. Explicitly selected fields must be present on every internal node; statistics are never mixed across nodes or imputed from branch lengths.</p>
+          </div>
+        </section>
+        </div>
+      </details>
+
+      <details class="settings-group tip-rename-section cloud-shared" data-settings-page="tips">
+        <summary><span class="settings-group-index">03</span><span><strong>Rename Tip Labels</strong><small>Optional · Edit individual tips or upload a mapping table</small></span></summary>
+        <div class="settings-group-body">
+          <p class="hint help-note tip-rename-intro" tabindex="0" data-detail="Edits the displayed taxon labels on the figure without altering original taxon identifiers in the tree file. Outgroup rooting, bipartition support matching, clade definitions, and iterative updates always reference original taxon identifiers."><span class="help-note-brief">Updates display labels only; original taxon identities are preserved.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+          <label for="tip-rename-select">Select a tip</label>
+          <div class="tip-rename-single-row">
+            <select id="tip-rename-select" aria-label="Select a tip to edit its display label"></select>
+            <button id="tip-rename-edit" type="button" class="button compact">Edit</button>
+          </div>
+          <p class="hint tip-rename-doubleclick-note">Tip: Double-click any tip label directly on the canvas to rename it.</p>
+          <div class="tip-map-actions">
+            <label class="button primary compact" for="tip-label-map-file">Upload Mapping Table</label>
+            <input id="tip-label-map-file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls">
+            <button id="tip-label-map-template" type="button" class="button compact">Download Template</button>
+            <button id="tip-label-map-clear" type="button" class="button compact">Restore Original Names</button>
+          </div>
+          <p class="hint help-note" tabindex="0" data-detail="Provide a two-column table (original_name, display_name) in CSV, TSV, TXT, or .xlsx format. All original taxon names, duplicate rows, and empty entries are validated atomically before any overrides are committed."><span class="help-note-brief">Two columns: original_name, display_name.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+          <div id="tip-label-map-status" class="tip-map-status" role="status">Displaying all original taxon names</div>
+          <div id="tip-label-map-list" class="tip-map-list"></div>
+        </div>
+      </details>
+
+      <details id="time-node-display-section" class="settings-group time-only" data-settings-page="labels">
+        <summary><span><strong>Node Ages &amp; HPD Credible Bars</strong><small>Visibility, decimal precision, and interval styling</small></span></summary>
+        <div class="settings-group-body">
+        <select id="time-age-decimals" hidden aria-hidden="true" tabindex="-1">
+          <option value="0">0 places</option>
+          <option value="1">1 place</option>
+          <option value="2" selected>2 places</option>
+          <option value="3">3 places</option>
+        </select>
+        <div class="numeric-card compact-numeric-card" role="group" aria-label="Node age decimal places">
+          <div class="numeric-card-head">
+            <div class="numeric-card-title">
+              <label for="time-age-decimals-slider">Node age decimal places</label>
+              <button class="numeric-help" type="button" tabindex="0" data-detail="Controls how many decimal places are displayed for internal node age labels without altering branch lengths, underlying node ages, or time-axis coordinates. Use 0 for broad overviews, 1–2 for standard publication chronograms, or 3 for fine-scale calibration inspection.">?</button>
+            </div>
+            <output id="time-age-decimals-value">2 places</output>
+          </div>
+          <p>Decimal precision for displayed internal node ages.</p>
+          <input id="time-age-decimals-slider" type="range" min="0" max="3" step="1" value="2">
+          <div class="numeric-scale"><span>0</span><span>3</span></div>
+          <div class="numeric-precise-control">
+            <label for="time-age-decimals-number">Exact value</label>
+            <div class="numeric-stepper">
+              <button id="time-age-decimals-decrease" type="button" aria-label="Decrease node age decimal places">−</button>
+              <input id="time-age-decimals-number" type="number" min="0" max="3" step="1" value="2" inputmode="numeric" aria-label="Exact node age decimal places">
+              <span aria-hidden="true">places</span>
+              <button id="time-age-decimals-increase" type="button" aria-label="Increase node age decimal places">＋</button>
+            </div>
+          </div>
+        </div>
+        <label class="check-row"><input id="time-show-ages" type="checkbox" checked> Show divergence ages at internal nodes</label>
+        <div class="time-setting-block time-hpd-controls">
+          <div class="time-setting-heading">
+            <strong>95% HPD Credible Intervals</strong>
+            <span>Control node scope and bar appearance</span>
+          </div>
+          <label class="check-row"><input id="time-show-hpd" type="checkbox" checked> Show 95% HPD node bars</label>
+          <label for="time-hpd-scope">Nodes to display</label>
+          <select id="time-hpd-scope">
+            <option value="all" selected>All nodes with HPD intervals</option>
+            <option value="named_clades">Named clades defined in Clades tab only</option>
+          </select>
+          <label for="time-hpd-marker">In-bar summary tick</label>
+          <select id="time-hpd-marker">
+            <option value="none" selected>None</option>
+            <option value="height_mean">Posterior mean (height_mean)</option>
+            <option value="height_median">Posterior median (height_median)</option>
+          </select>
+          <div class="time-hpd-style-grid">
+            <label for="time-hpd-color">Bar color</label>
+            <input id="time-hpd-color" type="color" value="#5f72a5" aria-label="HPD interval bar color">
+            <label for="time-hpd-opacity">Opacity <output id="time-hpd-opacity-value">40%</output></label>
+            <input id="time-hpd-opacity" type="range" min="0.1" max="1" step="0.05" value="0.4">
+            <label for="time-hpd-thickness">Bar thickness <output id="time-hpd-thickness-value">7 px</output></label>
+            <input id="time-hpd-thickness" type="range" min="2" max="16" step="1" value="7">
+          </div>
+          <p class="hint">Selecting "Named clades only" restricts 95% HPD bars to focal crown nodes highlighted in the Clades tab.</p>
+        </div>
+        </div>
+      </details>
+      <details id="time-background-section" class="settings-group time-only" data-settings-page="background">
+        <summary><span><strong>Geologic Time Scale &amp; Axis</strong><small>Stratigraphic bands, ticks, and dedicated font sizes</small></span></summary>
+        <div class="settings-group-body">
+        <p class="hint">Confirm time units under Data, and configure node ages, HPD bars, or pies under Annotations. Cloudograms inherit the imported species-tree time scale without re-dating.</p>
+        <div class="cloud-time-background-only">
+          <label class="check-row"><input id="cloud-show-time-axis" type="checkbox"> Show time axis &amp; geologic time scale on cloudogram</label>
+          <p id="cloud-time-background-status" class="hint" role="status">ICS stratigraphic colors are available across time modes without altering calibration semantics.</p>
+        </div>
+        <label for="time-geology">Geologic time scale backdrop</label>
+        <select id="time-geology">
+          <option value="standard" selected>ICS standard stratigraphic palette</option>
+          <option value="none">None (plain background)</option>
+        </select>
+        <div class="time-setting-block time-typography-controls">
+          <div class="time-setting-heading"><strong>Time Axis &amp; Stratigraphic Font Sizes</strong><span>Configured independently of node and tip labels</span></div>
+          <label for="time-period-size">Geologic periods / eras (e.g. Cretaceous) · pt</label>
+          <input id="time-period-size" type="number" min="3" max="24" step="0.125" value="16.5">
+          <label for="time-epoch-size">Geologic epochs (e.g. Eocene) · pt</label>
+          <input id="time-epoch-size" type="number" min="3" max="24" step="0.125" value="14.25">
+          <div hidden aria-hidden="true">
+            <label for="time-legend-size">Legacy stratigraphic legend · pt</label>
+            <input id="time-legend-size" type="number" min="3" max="24" step="0.125" value="12.75">
+          </div>
+          <label for="time-axis-size">Axis tick numerals · pt</label>
+          <input id="time-axis-size" type="number" min="3" max="24" step="0.125" value="15.75">
+          <label for="time-unit-size">Time unit title · pt</label>
+          <input id="time-unit-size" type="number" min="3" max="24" step="0.125" value="15">
+          <div hidden aria-hidden="true">
+            <label for="time-key-size">Legacy bottom caption · pt</label>
+            <input id="time-key-size" type="number" min="3" max="24" step="0.125" value="15">
+          </div>
+          <p class="hint">Top and bottom axes share these settings. Band heights and tick spacing scale automatically with font size; narrow intervals fall back to standard ICS abbreviations or omit labels cleanly without overflowing boundaries.</p>
+        </div>
+        <p class="hint help-note" tabindex="0" data-detail="Time units must be confirmed by the user and never alter input tree ages. When enabled on cloudograms with relative or unconfirmed units, stratigraphic bands are rendered strictly as a schematic backdrop (mapping 1 unit to 1 Myr) rather than absolute geological dates; confirmed units convert accurately."><span class="help-note-brief">Stratigraphic backdrop never alters tree ages or calibration basis.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+        </div>
+      </details>
+
+      <details id="node-data-section" class="settings-group" data-settings-page="data">
+        <summary><span class="settings-group-index">02</span><span><strong>Supplementary Node Data</strong><small>In-tree support values are extracted automatically</small></span></summary>
+        <div class="settings-group-body">
+        <p id="node-data-intro" class="hint help-note data-intro" tabindex="0" data-detail="The primary tree defines the reference topology. Support values embedded in the primary tree are shown automatically; supplementary support trees, ages, or custom node metrics are matched to corresponding clades by shared descendant taxon sets."><span class="help-note-brief">Attach additional node support or metrics from companion trees.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+        <div class="data-upload-card support-data-card support-only-controls">
+          <div>
+            <strong>Add Branch Support Trees</strong>
+            <span id="support-data-description" class="help-note help-note-card" tabindex="0" data-detail="Support values in the primary tree are displayed automatically. Upload companion trees here to combine additional bootstrap, posterior probability, SH-aLRT, or quartet support columns onto matching nodes."><span class="help-note-brief">Combine support values from companion analyses.</span><span class="help-note-icon" aria-hidden="true">i</span></span>
+          </div>
+          <label for="support-new-source-scale">Support scale for newly added source</label><select id="support-new-source-scale"><option value="auto">Auto-detect per column</option><option value="probability">Probability (0–1)</option><option value="percent">Percentage (0–100)</option><option value="probability/percent">Composite: Probability / Percentage</option><option value="percent/probability">Composite: Percentage / Probability</option></select>
+          <label class="button compact" for="support-data-files">Add Support Trees</label>
+          <input id="support-data-files" type="file" multiple>
+        </div>
+        <div id="support-data-list" class="node-data-list support-only-controls"></div>
+        <details id="other-data-disclosure" class="optional-settings">
+        <summary>Divergence ages, evolutionary rates &amp; other metrics <span>Optional</span></summary>
+        <div class="data-upload-card other-data-card">
+          <div>
+            <strong>Other Node Metrics</strong>
+            <span class="help-note help-note-card" tabindex="0" data-detail="Select named node annotations (ages, substitution rates, or custom scalars) from companion trees. These values participate in collision-free label placement without affecting full-support or low-support classification."><span class="help-note-brief">Attach node ages, rates, or custom numeric annotations.</span><span class="help-note-icon" aria-hidden="true">i</span></span>
+          </div>
+          <label class="button compact" for="other-data-files">Add Metric Trees</label>
+          <input id="other-data-files" type="file" multiple>
+        </div>
+        <div id="other-data-list" class="node-data-list"></div>
+        </details>
+        <p id="node-data-note" class="hint help-note data-match-note" tabindex="0" data-detail="Companion trees are matched to primary-tree nodes by shared descendant taxon sets (unrooted bipartitions for support), regardless of sister-clade rotation or root placement; discordant bipartitions absent from a companion tree are shown as an en-dash (–)."><span class="help-note-brief">Nodes matched automatically by shared taxon bipartitions.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+        </div>
+      </details>
+
+      <details class="settings-group" data-settings-page="tree" id="rooting-section">
+        <summary><span><strong>Rooting &amp; Outgroup</strong><small>Select an outgroup taxon to reroot the tree</small></span></summary>
+        <div class="settings-group-body">
+          <label for="root-outgroup">Outgroup taxon</label>
+          <select id="root-outgroup"><option value="">Import a tree first</option></select>
+          <button id="apply-outgroup-root" type="button" disabled>Reroot by Selected Outgroup</button>
+          <p class="hint">For a multi-taxon outgroup clade, right-click its subtending branch directly on the canvas and choose rerooting.</p>
+          <p class="hint">Rerooting redraws the tree and clears root-dependent manual label positions and clade highlights without modifying input files. Available only in the Phylogram workspace.</p>
+        </div>
+      </details>
+      <details class="settings-group" data-settings-page="tree">
+        <summary><span class="settings-group-index">01</span><span><strong>Branch Scaling &amp; Stroke</strong><small>Branch-length representation and line thickness</small></span></summary>
+        <div class="settings-group-body">
+        <label for="layout-mode">Branch-length representation</label>
+        <select id="layout-mode">
+          <option value="phylogram">Proportional branch lengths (phylogram)</option>
+          <option value="cladogram">Equal-depth cladogram</option>
+          <option value="aligned">Tip-aligned cladogram</option>
+        </select>
+        <div class="numeric-card" role="group" aria-label="Branch stroke width">
+          <div class="numeric-card-head">
+            <div class="numeric-card-title">
+              <label for="branch-width">Branch stroke width</label>
+              <button class="numeric-help" type="button" tabindex="0" data-detail="Controls branch line thickness across Phylogram and Time Tree workspaces. Node markers, support labels, and tip labels retain their own independent sizing. Typical publication figures use 1.0–1.6 u; thicker strokes suit slides or compact insets.">?</button>
+            </div>
+            <output id="branch-width-value">1.2 px</output>
+          </div>
+          <p>Stroke width of horizontal branches and vertical connectors.</p>
+          <input id="branch-width" type="range" min="0.5" max="4" step="0.1" value="1.2">
+          <div class="numeric-scale"><span>0.5 px</span><span>4 px</span></div>
+          <div class="numeric-precise-control">
+            <label for="branch-width-number">Exact value</label>
+            <div class="numeric-stepper">
+              <button id="branch-width-decrease" type="button" aria-label="Decrease branch stroke width">−</button>
+              <input id="branch-width-number" type="number" min="0.5" max="4" step="0.1" value="1.2" inputmode="decimal" aria-label="Exact branch stroke width">
+              <span aria-hidden="true">px</span>
+              <button id="branch-width-increase" type="button" aria-label="Increase branch stroke width">＋</button>
+            </div>
+          </div>
+        </div>
+        </div>
+      </details>
+      <details class="settings-group cloud-shared conflict-shared" data-settings-page="tree" id="tip-layout-settings">
+        <summary><span><strong>Tree Span &amp; Spacing</strong><small>Adjust vertical tip spacing &amp; horizontal span independently</small></span></summary>
+        <div class="settings-group-body">
+        <div id="automatic-tip-spacing-panel" hidden>
+          <label><input id="automatic-tip-spacing" type="checkbox"> Auto-balance tip spacing &amp; portrait aspect ratio</label>
+          <p id="automatic-tip-spacing-status" class="hint"></p>
+        </div>
+        <div class="numeric-card" role="group" aria-label="Vertical tip spacing">
+          <div class="numeric-card-head">
+            <div class="numeric-card-title">
+              <label for="tip-spacing">Vertical tip spacing</label>
+              <button class="numeric-help" type="button" tabindex="0" data-detail="Stretches or compacts the tree vertically by adjusting center-to-center distance between adjacent tips without altering horizontal branch span, font sizes, node markers, or stroke widths. After adjusting, click Optimize Node Label Placement at the bottom of the workbench.">?</button>
+            </div>
+            <output id="tip-spacing-value">21 px</output>
+          </div>
+          <p>Center-to-center distance between adjacent tips; automatically adapted to glyph height and taxon count by default.</p>
+          <input id="tip-spacing" type="range" min="17" max="64" step="1" value="21">
+          <div class="numeric-scale"><span>17 px</span><span>64 px</span></div>
+          <div class="numeric-precise-control">
+            <label for="tip-spacing-number">Exact value</label>
+            <div class="numeric-stepper">
+              <button id="tip-spacing-decrease" type="button" aria-label="Decrease vertical tip spacing">−</button>
+              <input id="tip-spacing-number" type="number" min="17" max="64" step="1" value="21" inputmode="numeric" aria-label="Exact vertical tip spacing">
+              <span aria-hidden="true">px</span>
+              <button id="tip-spacing-increase" type="button" aria-label="Increase vertical tip spacing">＋</button>
+            </div>
+          </div>
+        </div>
+        <div class="numeric-card cloud-hide conflict-hide" role="group" aria-label="Horizontal branch span">
+          <div class="numeric-card-head">
+            <div class="numeric-card-title">
+              <label for="tree-horizontal-scale">Horizontal branch span</label>
+              <button class="numeric-help" type="button" tabindex="0" data-detail="Scales the horizontal span of the tree exclusively without altering tip spacing, font sizes, node markers, or stroke widths. 100% represents the baseline tree width; 200% doubles horizontal branch span and 50% halves it while preserving exact relative branch lengths and updating scale bars or time axes accordingly.">?</button>
+            </div>
+            <output id="tree-horizontal-scale-value">100%</output>
+          </div>
+          <input id="tree-horizontal-scale" type="range" min="25" max="400" step="5" value="100">
+          <div class="numeric-scale"><span>25%</span><span>400%</span></div>
+          <div class="numeric-precise-control">
+            <label for="tree-horizontal-scale-number">Exact value</label>
+            <div class="numeric-stepper">
+              <button id="tree-horizontal-scale-decrease" type="button" aria-label="Decrease horizontal branch span">−</button>
+              <input id="tree-horizontal-scale-number" type="number" min="25" max="400" step="5" value="100" inputmode="numeric" aria-label="Exact horizontal branch span">
+              <span aria-hidden="true">%</span>
+              <button id="tree-horizontal-scale-increase" type="button" aria-label="Increase horizontal branch span">＋</button>
+            </div>
+          </div>
+        </div>
+        <p id="tree-stretch-shared-hint" class="hint cloud-hide conflict-hide">Vertical spacing controls center-to-center tip distance, whereas horizontal span scales branch lengths proportionally without altering font sizes or input tree data. Click "Optimize Node Label Placement" below after adjusting.</p>
+        </div>
+      </details>
+      <details class="settings-group" data-settings-page="tree">
+        <summary><span><strong>Sister-Clade Ordering</strong><small>Ladderize internal nodes</small></span></summary>
+        <div class="settings-group-body">
+        <label for="ladder-direction">Ladderization direction</label>
+        <select id="ladder-direction">
+          <option value="file">Preserve sister-clade order from file</option>
+          <option value="small-top" selected>Smaller sister clade on top</option>
+          <option value="large-top">Larger sister clade on top</option>
+        </select>
+        <p class="hint help-note" tabindex="0" data-detail="Ladderization rotates sister clades at internal nodes by descendant tip count while strictly preserving topology, branch lengths, and node annotations."><span class="help-note-brief">Rotates sister clades for display only.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+        </div>
+      </details>
+
+      <details class="settings-group" data-settings-page="export">
+        <summary><span class="settings-group-index">01</span><span><strong>Canvas Aspect Ratio</strong><small>Auto-balanced, standard presets, or custom ratio</small></span></summary>
+        <div class="settings-group-body">
+        <label for="output-aspect-ratio">Output aspect ratio</label>
+        <select id="output-aspect-ratio">
+          <option value="auto" selected>Auto-balanced (recommended)</option>
+          <option value="content">Compact fit to content</option>
+          <option value="1:1">1:1 Square</option>
+          <option value="4:3">4:3</option>
+          <option value="3:2">3:2</option>
+          <option value="16:9">16:9</option>
+          <option value="a4-landscape">A4 Landscape</option>
+          <option value="a4-portrait">A4 Portrait</option>
+          <option value="custom">Custom</option>
+        </select>
+        <p class="hint help-note" tabindex="0" data-detail="All four workspaces share a canonical 1000-u figure width. Auto-balanced and compact modes preserve natural content height; explicit aspect ratios pad canvas height when needed without compressing font sizes or tip spacing. Physical print width caps at 400 mm for single-tree workspaces and 800 mm for Tanglegram."><span class="help-note-brief">1000-u canonical width; max 400 mm (800 mm for Tanglegram).</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+        <div id="custom-aspect-card" class="numeric-card" role="group" aria-label="Custom aspect ratio" hidden>
+          <div class="numeric-card-head">
+            <div class="numeric-card-title">
+              <label for="custom-aspect-ratio">Custom width / height ratio</label>
+              <button class="numeric-help" type="button" tabindex="0" data-detail="Target width-to-height ratio (e.g., 1.50 for landscape, 0.70 for portrait). Adjusts horizontal branch coordinates rather than distorting fonts or strokes; physical print width limits take precedence.">?</button>
+            </div>
+            <output id="custom-aspect-ratio-value">1.50</output>
+          </div>
+          <p>Target ratio of canvas width to height.</p>
+          <input id="custom-aspect-ratio" type="range" min="0.4" max="3" step="0.05" value="1.5">
+          <div class="numeric-scale"><span>0.40</span><span>3.00</span></div>
+          <div class="numeric-precise-control">
+            <label for="custom-aspect-ratio-number">Exact value</label>
+            <div class="numeric-stepper">
+              <button id="custom-aspect-ratio-decrease" type="button" aria-label="Decrease custom aspect ratio">−</button>
+              <input id="custom-aspect-ratio-number" type="number" min="0.4" max="3" step="0.05" value="1.5" inputmode="decimal" aria-label="Exact custom aspect ratio">
+              <span aria-hidden="true">W/H</span>
+              <button id="custom-aspect-ratio-increase" type="button" aria-label="Increase custom aspect ratio">＋</button>
+            </div>
+          </div>
+        </div>
+        </div>
+      </details>
+      <details class="settings-group" data-settings-page="export">
+        <summary><span><strong>PNG Raster Resolution</strong><small>Adjust pixel density without altering layout</small></span></summary>
+        <div class="settings-group-body">
+        <div class="numeric-card" role="group" aria-label="PNG resolution multiplier">
+          <div class="numeric-card-head">
+            <div class="numeric-card-title">
+              <label for="png-resolution-scale">PNG resolution multiplier</label>
+              <button class="numeric-help" type="button" tabindex="0" data-detail="Increases raster pixel density for PNG exports without altering layout geometry, aspect ratio, relative font sizes, or stroke weights. 1× suits screen previews, 2× suits manuscripts, and 3×–4× provides publication-grade print resolution. Vector SVG exports are unaffected. Oversized rasters exceeding browser canvas limits are capped safely with an explicit notice.">?</button>
+            </div>
+            <output id="png-resolution-scale-value">2 ×</output>
+          </div>
+          <p>Scales raster pixel dimensions only; relative typography and geometry remain identical.</p>
+          <input id="png-resolution-scale" type="range" min="1" max="4" step="1" value="2">
+          <div class="numeric-scale"><span>1×</span><span>4×</span></div>
+          <div class="numeric-precise-control">
+            <label for="png-resolution-scale-number">Exact value</label>
+            <div class="numeric-stepper">
+              <button id="png-resolution-scale-decrease" type="button" aria-label="Decrease PNG resolution multiplier">−</button>
+              <input id="png-resolution-scale-number" type="number" min="1" max="4" step="1" value="2" inputmode="numeric" aria-label="Exact PNG resolution multiplier">
+              <span aria-hidden="true">×</span>
+              <button id="png-resolution-scale-increase" type="button" aria-label="Increase PNG resolution multiplier">＋</button>
+            </div>
+          </div>
+        </div>
+        </div>
+      </details>
+      <details class="settings-group" data-settings-page="export">
+        <summary><span><strong>Print Dimensions</strong><small>Physical width and effective raster dimensions</small></span></summary>
+        <div class="settings-group-body">
+        <div id="output-layout-status" class="output-layout-status" role="status">Calculating output dimensions...</div>
+        </div>
+      </details>
+
+      <details id="time-age-range-section" class="settings-group time-labels-only" data-settings-page="labels">
+        <summary><span class="settings-group-index">01</span><span><strong>Node Age Label Filter</strong><small>Annotate divergence ages within a focal window</small></span></summary>
+        <div class="settings-group-body">
+          <p class="hint">Applies to the Time Tree workspace only. On dense chronograms (&ge;160 candidate nodes), leaving bounds blank labels the older 50% of nodes by default; enter 0 as minimum age to label all nodes. Filtering hides out-of-range age numerals and markers while preserving 95% HPD bars, branches, and time coordinates.</p>
+          <div class="time-age-range-grid" role="group" aria-label="Node age label display window">
+            <label for="time-age-minimum">Minimum age
+              <small>Hide node ages younger than this bound</small>
+            </label>
+            <div class="time-age-range-input">
+              <input id="time-age-minimum" type="number" min="0" step="any" inputmode="decimal" placeholder="No limit" aria-label="Minimum age bound for node labels">
+              <span id="time-age-minimum-unit">file units</span>
+            </div>
+            <label for="time-age-maximum">Maximum age
+              <small>Hide node ages older than this bound</small>
+            </label>
+            <div class="time-age-range-input">
+              <input id="time-age-maximum" type="number" min="0" step="any" inputmode="decimal" placeholder="No limit" aria-label="Maximum age bound for node labels">
+              <span id="time-age-maximum-unit">file units</span>
+            </div>
+          </div>
+          <button id="time-age-range-reset" type="button" class="button compact">Show All Node Ages</button>
+          <p id="time-age-range-status" class="time-age-range-status" role="status">Using automatic policy: labels older 50% on dense chronograms, or all nodes on smaller trees.</p>
+        </div>
+      </details>
+
+      <details id="conflict-support-field-section" class="settings-group conflict-labels-only" data-settings-page="labels">
+        <summary><span class="settings-group-index">01</span><span><strong>Support Field Selection</strong><small>Choose left, right, or composite slash-delimited fields</small></span></summary>
+        <div class="settings-group-body conflict-support-field-grid">
+          <div class="conflict-support-field-card">
+            <label for="conflict-nuclear-support-field"><strong>Left Primary Tree</strong></label>
+            <select id="conflict-nuclear-support-field" disabled>
+              <option value="all">Auto-detected upon import</option>
+            </select>
+            <p id="conflict-nuclear-support-field-status" class="hint">Primary tree not yet imported.</p>
+            <label for="conflict-primary-support-scale">Primary support scale</label><select id="conflict-primary-support-scale"><option value="auto">Auto-detect per column</option><option value="probability">Probability (0–1)</option><option value="percent">Percentage (0–100)</option><option value="probability/percent">Composite: Probability / Percentage</option><option value="percent/probability">Composite: Percentage / Probability</option></select>
+          </div>
+          <div class="conflict-support-field-card">
+            <label for="conflict-plastid-support-field"><strong>Right Comparison Tree</strong></label>
+            <select id="conflict-plastid-support-field" disabled>
+              <option value="all">Auto-detected upon import</option>
+            </select>
+            <p id="conflict-plastid-support-field-status" class="hint">Comparison tree not yet imported.</p>
+            <label for="conflict-secondary-support-scale">Comparison support scale</label><select id="conflict-secondary-support-scale"><option value="auto">Auto-detect per column</option><option value="probability">Probability (0–1)</option><option value="percent">Percentage (0–100)</option><option value="probability/percent">Composite: Probability / Percentage</option><option value="percent/probability">Composite: Percentage / Probability</option></select>
+          </div>
+          <p class="hint">Single-field support labels are selected automatically. For composite slash-delimited labels (e.g., SH-aLRT/UFBoot), choose Field 1 (left), Field 2 (right), or all fields; metric semantics are never guessed from file names.</p>
+        </div>
+      </details>
+
+      <details class="settings-group support-only-controls" data-settings-page="labels">
+        <summary><span class="settings-group-index">02</span><span><strong>Support Decimal Precision</strong><small>Preserve raw formatting or unify decimal places</small></span></summary>
+        <div class="settings-group-body">
+        <select id="support-decimals" hidden aria-hidden="true" tabindex="-1">
+          <option value="auto" selected>Auto by scale (0% / 2 prob.)</option>
+          <option value="original">As in file</option>
+          <option value="0">0 places</option>
+          <option value="1">1 place</option>
+          <option value="2">2 places</option>
+          <option value="3">3 places</option>
+          <option value="4">4 places</option>
+          <option value="5">5 places</option>
+          <option value="6">6 places</option>
+        </select>
+        <div id="support-decimals-control" class="numeric-card precision-card" data-auto="true" role="group" aria-label="Support decimal places">
+          <div class="numeric-card-head">
+            <div class="numeric-card-title">
+              <label for="support-decimals-range">Decimal places</label>
+              <button class="numeric-help" type="button" tabindex="0" data-detail="Default Auto by scale formats percentage support columns (0–100) as integers and probability columns (0–1) to 2 decimal places. Set 0–6 to force uniform decimal places across all columns, or choose 'As in file' to retain original string formatting without rounding. Full-support styling (100% or 1.00) uses active display rounding; low-support filtering always uses raw values.">?</button>
+            </div>
+            <output id="support-decimals-value">Auto (0% / 2 prob.)</output>
+          </div>
+          <div class="numeric-card-actions">
+            <button id="support-decimals-scale-auto" class="precision-auto" type="button" aria-pressed="true">Auto by scale</button>
+            <button id="support-decimals-auto" class="precision-auto" type="button" aria-pressed="false">As in file</button>
+          </div>
+          <p>Auto by scale (0 places for %, 2 places for 0–1 probability) or fixed decimal places.</p>
+          <input id="support-decimals-range" type="range" min="0" max="6" step="1" value="1" aria-label="Support decimal places slider">
+          <div class="numeric-scale"><span>0</span><span>6</span></div>
+          <div class="numeric-precise-control">
+            <label for="support-decimals-number">Exact value</label>
+            <div id="support-decimals-stepper" class="numeric-stepper" data-active="false">
+              <button id="support-decimals-decrease" type="button" aria-label="Decrease decimal places">−</button>
+              <input id="support-decimals-number" type="number" min="0" max="6" step="1" value="" placeholder="Auto" data-last-value="1" inputmode="numeric" aria-label="Using scale-aware precision; focus or step to set fixed decimal places">
+              <span aria-hidden="true">places</span>
+              <button id="support-decimals-increase" type="button" aria-label="Increase decimal places">＋</button>
+            </div>
+          </div>
+        </div>
+        </div>
+      </details>
+      <details class="settings-group support-only-controls" data-settings-page="labels">
+        <summary><span><strong>Support Display Conventions</strong><small>Full-support styling &amp; low-support masking</small></span></summary>
+        <div class="settings-group-body">
+        <label for="full-support-style">Full support representation</label>
+        <select id="full-support-style">
+          <option value="branch" selected>Thickened subtending branch (red dot on non-full)</option>
+          <option value="circle">Filled black node circle (classic)</option>
+          <option value="number">Numeric label</option>
+          <option value="hide">Unmarked (omit label &amp; dot)</option>
+          <option value="star">Asterisk (*)</option>
+        </select>
+        <div id="support-threshold-card" class="numeric-card threshold-card active">
+          <div class="numeric-card-head">
+            <div class="numeric-card-title">
+              <label for="support-threshold">Low-support masking cutoff</label>
+              <button class="numeric-help" type="button" tabindex="0" data-detail="Masks individual support values strictly below this threshold with an en-dash (–). Multi-source or composite labels are evaluated per column (e.g., 0.50/78.0 becomes –/78.0 at a 51% cutoff). Set to 0 to disable masking. Applies exclusively to branch support columns, leaving node ages and other metrics untouched.">?</button>
+            </div>
+            <output id="support-threshold-value">50</output>
+          </div>
+          <p id="support-threshold-help">Support values below this cutoff are masked as <strong>–</strong></p>
+          <input id="support-threshold" type="range" min="0" max="100" step="1" value="50" aria-describedby="support-threshold-help">
+          <div class="numeric-scale"><span>Off</span><span>100</span></div>
+          <div class="numeric-precise-control">
+            <label for="support-threshold-number">Exact value</label>
+            <div class="numeric-stepper">
+              <button id="support-threshold-decrease" type="button" aria-label="Decrease low-support cutoff">−</button>
+              <input id="support-threshold-number" type="number" min="0" max="100" step="1" value="50" inputmode="numeric" aria-label="Exact low-support cutoff">
+              <span aria-hidden="true">%</span>
+              <button id="support-threshold-increase" type="button" aria-label="Increase low-support cutoff">＋</button>
+            </div>
+          </div>
+        </div>
+        <p class="hint help-note" tabindex="0" data-detail="Full support is evaluated at the active display decimal precision (all present columns must reach 100% or 1.0). By default, full support thickens the subtending branch to 2.5× baseline stroke width without adding a node dot, while non-full supported nodes receive a solid red dot; user clade colors are preserved."><span class="help-note-brief">Precision, full-support, and cutoff rules apply only to support columns.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+        </div>
+      </details>
+
+        <details id="tip-typography-section" class="settings-group type-card cloud-shared" data-settings-page="tips">
+          <summary><span><strong>Tip Font &amp; Color</strong><small>Typeface, size, bold weight, and clade color inheritance</small></span></summary>
+          <div class="type-card-body">
+            <label for="tip-font-family">Font family</label>
+            <select id="tip-font-family">
+              <option value="Arial, &quot;Noto Sans SC Variable&quot;, sans-serif">Arial</option>
+              <option value="&quot;PhyloRender Baskerville&quot;, &quot;Noto Sans SC Variable&quot;, serif">Libre Baskerville (Georgia style)</option>
+              <option value="&quot;PhyloRender Source Serif&quot;, &quot;Noto Sans SC Variable&quot;, serif">Source Serif 4 (Times style)</option>
+              <option value="&quot;PhyloRender Arimo&quot;, &quot;Noto Sans SC Variable&quot;, sans-serif">Arimo (open-source sans fallback)</option>
+              <option value="&quot;Noto Sans SC Variable&quot;, &quot;PhyloRender Arimo&quot;, sans-serif">Noto Sans SC (CJK &amp; Latin sans)</option>
+            </select>
+            <label for="tip-font-color">Text color</label>
+            <input id="tip-font-color" class="color-control" type="color" value="#17211b">
+            <label class="check-row"><input id="tip-follow-clade" type="checkbox" checked> Match assigned clade color</label>
+            <div class="numeric-card compact-numeric-card" role="group" aria-label="Tip label font size">
+              <div class="numeric-card-head">
+                <div class="numeric-card-title">
+                  <label for="tip-font-size">Font size</label>
+                  <button class="numeric-help" type="button" tabindex="0" data-detail="Controls the font size of terminal taxon labels. Updates canvas labels and clade bar positions immediately without re-running label collision search; click Optimize Node Label Placement below once finalized.">?</button>
+                </div>
+                <output id="tip-font-size-value">20 px</output>
+              </div>
+              <p>Font size of terminal taxon names.</p>
+              <input id="tip-font-size" type="range" min="8" max="30" step="1" value="20">
+              <div class="numeric-scale"><span>8 px</span><span>30 px</span></div>
+              <div class="numeric-precise-control">
+                <label for="tip-font-size-number">Exact value</label>
+                <div class="numeric-stepper">
+                  <button id="tip-font-size-decrease" type="button" aria-label="Decrease tip label font size">−</button>
+                  <input id="tip-font-size-number" type="number" min="8" max="30" step="1" value="20" inputmode="numeric" aria-label="Exact tip label font size">
+                  <span aria-hidden="true">px</span>
+                  <button id="tip-font-size-increase" type="button" aria-label="Increase tip label font size">＋</button>
+                </div>
+              </div>
+            </div>
+            <div class="type-style-row">
+              <label class="check-row"><input id="tip-font-bold" type="checkbox"> Bold</label>
+            </div>
+          </div>
+        </details>
+        <details id="tip-format-section" class="settings-group type-card cloud-shared" data-settings-page="tips">
+          <summary><span><strong>Taxonomic Nomenclature</strong><small>Binomial italics &amp; infraspecific rank formatting</small></span></summary>
+          <div class="type-card-body">
+            <label for="tip-italic-mode">Italicization rule</label>
+            <select id="tip-italic-mode">
+              <option value="auto" selected>Auto-italicize Latin binomials / trinomials (nomenclatural rules)</option>
+              <option value="all">Italicize entire label</option>
+              <option value="none">Upright (roman) throughout</option>
+            </select>
+            <label class="check-row"><input id="tip-normalize-ranks" type="checkbox" checked> Standardize infraspecific rank abbreviations</label>
+            <p id="rank-normalization-status" class="rank-normalization-status" role="status">e.g., SSP / subspecies → subsp.; VAR / variety → var. (kept upright)</p>
+            <p id="taxon-name-status" class="taxon-name-status" role="status">Initializing taxonomic name parser...</p>
+          </div>
+        </details>
+
+        <details class="settings-group numeric-node-controls" data-settings-page="labels">
+          <summary><span><strong>Node Markers</strong><small>Adjust internal node dot radius</small></span></summary>
+          <div class="settings-group-body"><span id="node-marker-controls-end" hidden></span></div>
+        </details>
+        <details class="settings-group type-card" data-settings-page="labels">
+          <summary><span class="settings-group-index">02</span><span><strong>Node Label Font &amp; Color</strong><small>Typeface, color, and weight for node numerals</small></span></summary>
+          <div class="type-card-body">
+            <label for="support-font-family">Font family</label>
+            <select id="support-font-family">
+              <option value="Arial, &quot;Noto Sans SC Variable&quot;, sans-serif">Arial</option>
+              <option value="&quot;PhyloRender Arimo&quot;, &quot;Noto Sans SC Variable&quot;, sans-serif">Arimo (open-source sans fallback)</option>
+              <option value="&quot;PhyloRender Baskerville&quot;, &quot;Noto Sans SC Variable&quot;, serif">Libre Baskerville (Georgia style)</option>
+              <option value="&quot;PhyloRender Source Serif&quot;, &quot;Noto Sans SC Variable&quot;, serif">Source Serif 4 (Times style)</option>
+              <option value="&quot;Noto Sans SC Variable&quot;, &quot;PhyloRender Arimo&quot;, sans-serif">Noto Sans SC (CJK &amp; Latin sans)</option>
+            </select>
+            <label for="support-font-color">Text color</label>
+            <input id="support-font-color" class="color-control" type="color" value="#8c2e28">
+            <div class="type-style-row">
+              <label class="check-row"><input id="support-font-bold" type="checkbox"> Bold</label>
+              <label class="check-row"><input id="support-font-italic" type="checkbox"> Italic</label>
+            </div>
+          </div>
+        </details>
+        <details class="settings-group type-card" data-settings-page="labels">
+          <summary><span><strong>Node Label Size Bounds</strong><small>Preferred font size &amp; collision-avoidance floor</small></span></summary>
+          <div class="type-card-body">
+            <div class="numeric-card compact-numeric-card" role="group" aria-label="Preferred node label size">
+              <div class="numeric-card-head">
+                <div class="numeric-card-title">
+                  <label for="support-size">Preferred size</label>
+                  <button class="numeric-help" type="button" tabindex="0" data-detail="Target font size used whenever sufficient collision-free space is available around an internal node. In dense short-branch clusters, automatic placement first searches alternative candidate slots and leader-line offsets before stepping down toward the minimum size.">?</button>
+                </div>
+                <output id="support-size-value">18 px</output>
+              </div>
+              <label class="check-row"><input id="support-size-auto" type="checkbox" checked> Automatic: scale with tree spacing</label>
+              <p>Target font size for node support and age numerals (scales automatically by default; manual input fixes size).</p>
+              <input id="support-size" type="range" min="9" max="32" step="1" value="18">
+              <div class="numeric-scale"><span>8 px</span><span>32 px</span></div>
+              <div class="numeric-precise-control">
+                <label for="support-size-number">Exact value</label>
+                <div class="numeric-stepper">
+                  <button id="support-size-decrease" type="button" aria-label="Decrease preferred node label size">−</button>
+                  <input id="support-size-number" type="number" min="9" max="32" step="1" value="18" inputmode="numeric" aria-label="Exact preferred node label size">
+                  <span aria-hidden="true">px</span>
+                  <button id="support-size-increase" type="button" aria-label="Increase preferred node label size">＋</button>
+                </div>
+              </div>
+            </div>
+            <div class="numeric-card compact-numeric-card" role="group" aria-label="Minimum collision-avoidance size">
+              <div class="numeric-card-head">
+                <div class="numeric-card-title">
+                  <label for="support-min-size">Minimum size floor</label>
+                  <button class="numeric-help" type="button" tabindex="0" data-detail="Strict lower font-size floor enforced during automatic collision avoidance. Nearby slots are tried first; in congested regions, angled leader lines with white halos route labels to clear openings without shrinking below this floor. Any unavoidable residual overlaps are reported honestly rather than silently miniaturized.">?</button>
+                </div>
+                <output id="support-min-size-value">7 pt</output>
+              </div>
+              <p>Hard lower bound during automatic label step-down.</p>
+              <input id="support-min-size" type="range" min="9" max="18" step="any" value="9.333333333333334">
+              <div class="numeric-scale"><span>6.75 pt</span><span>13.5 pt</span></div>
+              <div class="numeric-precise-control">
+                <label for="support-min-size-number">Exact value</label>
+                <div class="numeric-stepper">
+                  <button id="support-min-size-decrease" type="button" aria-label="Decrease minimum node label size">−</button>
+                  <input id="support-min-size-number" type="number" min="6.75" max="13.5" step="0.25" value="7" inputmode="decimal" aria-label="Exact minimum node label size">
+                  <span aria-hidden="true">pt</span>
+                  <button id="support-min-size-increase" type="button" aria-label="Increase minimum node label size">＋</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details id="clade-bar-alignment-section" class="settings-group" data-settings-page="groups">
+          <summary><span><strong>Clade Bar Alignment</strong><small>Track tip labels closely or align vertically</small></span></summary>
+          <div class="settings-group-body">
+            <label for="clade-bar-alignment">Bar alignment mode</label>
+            <select id="clade-bar-alignment">
+              <option value="auto" selected>Automatic (by tip length for 1 layer; aligned for multi-layer)</option>
+              <option value="nearby">Adjacent to each clade's tip labels</option>
+              <option value="aligned">Flush right along a shared column</option>
+            </select>
+            <p class="hint">Automatic mode tracks each clade's tip labels when only a single grouping layer is present, and aligns all clade bars into shared outer columns whenever two or more clade layers are defined.</p>
+          </div>
+        </details>
+        <details class="settings-group type-card" data-settings-page="groups">
+          <summary><span class="settings-group-index">03</span><span><strong>Clade Label Typography</strong><small>Styling for clade bracket titles</small></span></summary>
+          <div class="type-card-body">
+            <label for="clade-font-family">Font family</label>
+            <select id="clade-font-family">
+              <option value="Arial, &quot;Noto Sans SC Variable&quot;, sans-serif">Arial</option>
+              <option value="&quot;PhyloRender Arimo&quot;, &quot;Noto Sans SC Variable&quot;, sans-serif">Arimo (open-source sans fallback)</option>
+              <option value="&quot;PhyloRender Baskerville&quot;, &quot;Noto Sans SC Variable&quot;, serif">Libre Baskerville (Georgia style)</option>
+              <option value="&quot;PhyloRender Source Serif&quot;, &quot;Noto Sans SC Variable&quot;, serif">Source Serif 4 (Times style)</option>
+              <option value="&quot;Noto Sans SC Variable&quot;, &quot;PhyloRender Arimo&quot;, sans-serif">Noto Sans SC (CJK &amp; Latin sans)</option>
+            </select>
+            <p class="hint">Clade titles inherit each group's assigned swatch color; adjust individual colors under Clade &amp; Taxon Highlighting.</p>
+            <div class="numeric-card compact-numeric-card" role="group" aria-label="Clade label font size">
+              <div class="numeric-card-head">
+                <div class="numeric-card-title">
+                  <label for="clade-font-size">Font size</label>
+                  <button class="numeric-help" type="button" tabindex="0" data-detail="Controls the font size of clade bracket titles on the right margin without altering tip or node support labels. Horizontal margin clearance adjusts automatically.">?</button>
+                </div>
+                <output id="clade-font-size-value">13 px</output>
+              </div>
+              <label class="check-row"><input id="clade-font-auto" type="checkbox" checked> Automatic: 3 u larger than tip labels</label>
+              <p class="hint">Tracks tip label font size by default; editing the clade size directly switches to a fixed manual size.</p>
+              <input id="clade-font-size" type="range" min="8" max="30" step="1" value="13">
+              <div class="numeric-scale"><span>8 px</span><span>30 px</span></div>
+              <div class="numeric-precise-control">
+                <label for="clade-font-size-number">Exact value</label>
+                <div class="numeric-stepper">
+                  <button id="clade-font-size-decrease" type="button" aria-label="Decrease clade label font size">−</button>
+                  <input id="clade-font-size-number" type="number" min="8" max="30" step="1" value="13" inputmode="numeric" aria-label="Exact clade label font size">
+                  <span aria-hidden="true">px</span>
+                  <button id="clade-font-size-increase" type="button" aria-label="Increase clade label font size">＋</button>
+                </div>
+              </div>
+            </div>
+            <div class="type-style-row">
+              <label class="check-row"><input id="clade-font-bold" type="checkbox" checked> Bold</label>
+              <label class="check-row"><input id="clade-font-italic" type="checkbox"> Italic</label>
+            </div>
+          </div>
+        </details>
+
+        <details id="scale-font-section" class="settings-group type-card" data-settings-page="tree">
+          <summary><span class="settings-group-index">04</span><span><strong>Scale Bar Typography</strong><small>Font family, size, and color for scale bar label</small></span></summary>
+          <div class="type-card-body">
+            <label for="scale-font-family">Font family</label>
+            <select id="scale-font-family">
+              <option value="Arial, &quot;Noto Sans SC Variable&quot;, sans-serif">Arial</option>
+              <option value="&quot;PhyloRender Arimo&quot;, &quot;Noto Sans SC Variable&quot;, sans-serif">Arimo (open-source sans fallback)</option>
+              <option value="&quot;PhyloRender Baskerville&quot;, &quot;Noto Sans SC Variable&quot;, serif">Libre Baskerville (Georgia style)</option>
+              <option value="&quot;PhyloRender Source Serif&quot;, &quot;Noto Sans SC Variable&quot;, serif">Source Serif 4 (Times style)</option>
+              <option value="&quot;Noto Sans SC Variable&quot;, &quot;PhyloRender Arimo&quot;, sans-serif">Noto Sans SC (CJK &amp; Latin sans)</option>
+            </select>
+            <label for="scale-font-color">Text color</label>
+            <input id="scale-font-color" class="color-control" type="color" value="#26302b">
+            <div class="numeric-card compact-numeric-card" role="group" aria-label="Scale bar font size">
+              <div class="numeric-card-head">
+                <div class="numeric-card-title">
+                  <label for="scale-font-size">Font size</label>
+                  <button class="numeric-help" type="button" tabindex="0" data-detail="Controls the font size of the substitution scale-bar label in the Phylogram workspace without altering branch-length scaling. Configure chronogram time-axis numerals under Time Scale.">?</button>
+                </div>
+                <output id="scale-font-size-value">18 px</output>
+              </div>
+              <p>Font size of the scale-bar numeral.</p>
+              <input id="scale-font-size" type="range" min="7" max="24" step="1" value="18">
+              <div class="numeric-scale"><span>7 px</span><span>24 px</span></div>
+              <div class="numeric-precise-control">
+                <label for="scale-font-size-number">Exact value</label>
+                <div class="numeric-stepper">
+                  <button id="scale-font-size-decrease" type="button" aria-label="Decrease scale bar font size">−</button>
+                  <input id="scale-font-size-number" type="number" min="7" max="24" step="1" value="18" inputmode="numeric" aria-label="Exact scale bar font size">
+                  <span aria-hidden="true">px</span>
+                  <button id="scale-font-size-increase" type="button" aria-label="Increase scale bar font size">＋</button>
+                </div>
+              </div>
+            </div>
+            <div class="type-style-row">
+              <label class="check-row"><input id="scale-font-bold" type="checkbox"> Bold</label>
+              <label class="check-row"><input id="scale-font-italic" type="checkbox"> Italic</label>
+            </div>
+          </div>
+        </details>
+      <details id="reset-all-typography-section" class="settings-group cloud-shared conflict-shared" data-settings-page="export">
+        <summary><span class="settings-group-index">04</span><span><strong>Reset Typography</strong><small>Optional · Restore workspace default fonts &amp; colors</small></span></summary>
+        <div class="settings-group-body">
+          <p class="hint">Restores default font families, sizes, and colors for the active workspace (including clade titles and scale bar where applicable) without modifying tree data.</p>
+          <button id="reset-typography" class="button full">Restore Default Fonts &amp; Colors</button>
+        </div>
+      </details>
+
+      <details class="settings-group" data-settings-page="groups">
+        <summary><span class="settings-group-index">01</span><span><strong>Clade &amp; Taxon Highlighting</strong><small>Interactive selection, branch coloring &amp; clade bars</small></span></summary>
+        <div class="settings-group-body">
+        <div class="clade-actions">
+          <button id="toggle-clade-select" class="button primary">Select Clade or Taxon</button>
+          <button id="clear-clade-colors" class="button">Clear All</button>
+        </div>
+        <button type="button" class="settings-jump" data-settings-jump="groups" data-settings-section="clade-font-family">Configure clade title font &amp; size ↓</button>
+        <p id="clade-select-hint" class="hint help-note" tabindex="0" data-detail="Click any internal node, horizontal branch, or terminal tip label on the canvas. Individual tips can also be highlighted independently; colors, names, and clade bars update live."><span class="help-note-brief">Click a branch or tip on the canvas to define a clade.</span><span class="help-note-icon" aria-hidden="true">i</span></p>
+        <div id="clade-selection-list" class="clade-selection-list">
+          <div class="clade-empty">No clades defined yet</div>
+        </div>
+        </div>
+      </details>
+      <div class="export-guide" data-settings-page="export">
+        <h3>Shared Web &amp; AI Agent Specification</h3>
+        <button id="export-figure-config" type="button" class="button">Export Figure Spec (.json)</button>
+        <label for="import-figure-config" class="button">Load Figure Spec (.json)</label>
+        <input id="import-figure-config" type="file" accept="application/json,.json" hidden>
+        <p class="hint">Specifications bundle raw tree inputs and exact visual settings for lossless round-trip editing between the Web Workbench and MCP agents. Share only with trusted collaborators.</p>
+        <h3>Format Guide</h3>
+        <dl>
+          <div><dt>SVG</dt><dd>Editable vector graphics with embedded font subsets for journal production.</dd></div>
+          <div><dt>PNG</dt><dd>Publication raster image at the configured DPI density.</dd></div>
+          <div><dt>Two-Panel Split</dt><dd>Splits tall trees once, isolating a complete monophyletic clade into Panel B.</dd></div>
+        </dl>
+      </div>
+      <section id="node-label-controls" class="auto-layout-panel" aria-label="Node annotation placement" style="display: block !important; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line);">
+        <h3>Node Annotation Placement</h3>
+        <p id="node-label-action-description" class="hint">Optimizes support and age label positions around internal nodes to prevent collisions with branches and text while preserving current tip sizes and spacing.</p>
+        <button id="reset-labels" class="button primary full" type="button">Optimize Node Label Placement</button>
+        <details class="auto-layout-options">
+          <summary>Placement options &amp; rules</summary>
+          <label class="check-row cloud-hide"><input id="auto-labels" type="checkbox" checked> Automatically optimize candidate slots and font sizes within bounds</label>
+          <label class="check-row cloud-hide"><input id="leader-lines" type="checkbox" checked> Draw angled leader lines &amp; arrowheads when displaced (45° preferred)</label>
+          <p class="hint cloud-hide">Recomputes collision-free placements across all internal nodes (clearing manual label drags) while keeping tip font sizes and vertical spacing intact.</p>
+          <p class="hint">Global action across the active figure after adjusting layout or typography parameters above.</p>
+        </details>
+      </section>
+    </aside>
+
+    <div id="panel-divider" role="separator" aria-orientation="vertical" aria-label="Resize or collapse Figure Workbench" aria-controls="settings-controls tree-workspace" tabindex="0" title="Drag horizontally to resize; drag past minimum width to collapse; double-click to reset"></div>
+    <button id="panel-restore" type="button" aria-label="Expand Figure Workbench" aria-controls="settings-controls" title="Expand Figure Workbench" hidden>
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false"><path d="M5 3 L9 7 L5 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <section class="workspace" id="tree-workspace">
+      <div class="canvas-toolbar">
+        <button id="zoom-out" class="icon-button" aria-label="Zoom out">−</button>
+        <span id="zoom-value">100%</span>
+        <button id="zoom-in" class="icon-button" aria-label="Zoom in">＋</button>
+        <button id="zoom-fit" class="button compact" title="Fit entire figure in viewport; affects preview zoom only">Fit window</button>
+        <button id="zoom-width" class="button compact" title="Fit figure width and scroll vertically; exported geometry unchanged">Fit width</button>
+        <button id="zoom-reset" class="button compact">100%</button>
+        <button id="view-back" class="button compact" disabled title="Return to previous viewport before search or clade focus">Back</button>
+        <form id="tree-search" class="tree-search" role="search">
+          <input id="tree-search-input" type="search" placeholder="Find taxon..." aria-label="Find taxon label">
+          <button class="button compact" type="submit">Find</button>
+          <button id="tree-search-next" class="button compact" type="button" aria-label="Next matching taxon">Next</button>
+          <span id="tree-search-status" role="status" aria-live="polite"></span>
+        </form>
+        <span id="canvas-note" class="drag-note" title="Pinch or Alt + scroll to zoom around pointer; scroll to pan. Viewport navigation never alters exported figures.">Right-click branch to reroot · Alt + scroll to zoom</span>
+      </div>
+      <div id="canvas-error-banner" class="canvas-error-banner" role="alert" aria-live="assertive" hidden></div>
+      <div id="tree-viewport" class="tree-viewport">
+        <div id="tree-stage" class="tree-stage">
+          <svg id="tree-svg" xmlns="http://www.w3.org/2000/svg" aria-label="Phylogenetic tree figure"></svg>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="branch-context-menu" class="branch-context-menu" role="menu" hidden>
+    <div class="branch-context-heading">Selected Branch</div>
+    <div id="branch-context-summary" class="branch-context-summary"></div>
+    <button id="branch-context-focus" type="button" role="menuitem">
+      <span>Zoom to clade</span>
+      <small>Focuses viewport only without altering rooting, topology, or exports</small>
+    </button>
+    <button id="branch-context-reroot" type="button" role="menuitem">
+      <span>Reroot at this branch</span>
+      <small>Place root on this edge so the selected taxon or clade forms the sister lineage</small>
+    </button>
+  </div>
+  <div id="conflict-branch-menu" class="branch-context-menu" role="menu" hidden>
+    <div class="branch-context-heading">Left Primary Tree · Selected Node</div>
+    <div id="conflict-branch-summary" class="branch-context-summary"></div>
+    <button id="conflict-branch-swap" type="button" role="menuitem">
+      <span>Swap sister clades</span>
+      <small>Rotates display order only; comparison tree re-optimizes automatically</small>
+    </button>
+  </div>
+  <div id="cloud-pie-menu" class="branch-context-menu cloud-pie-menu" role="menu" aria-label="Discordance pie visibility" hidden>
+    <div id="cloud-pie-menu-heading" class="branch-context-summary"></div>
+    <p id="cloud-pie-menu-range-hint" class="hint" hidden></p>
+    <button id="cloud-pie-menu-show" type="button" role="menuitemradio" aria-checked="true">Show pie chart</button>
+    <button id="cloud-pie-menu-hide" type="button" role="menuitemradio" aria-checked="false">Hide pie chart</button>
+    <button id="cloud-pie-menu-cancel" type="button" role="menuitem">Cancel</button>
+  </div>
+  <div id="branch-hover-tip" class="branch-hover-tip" role="tooltip" hidden>Right-click: Reroot at this branch</div>
+  <div id="help-tooltip" class="help-tooltip" role="tooltip" hidden></div>
+
+  <dialog id="clade-name-dialog" class="clade-dialog">
+    <form id="clade-name-form">
+      <h2 id="clade-dialog-title">Define Clade Group</h2>
+      <p id="clade-dialog-summary" class="dialog-summary"></p>
+      <label for="clade-name-input">Clade label</label>
+      <input id="clade-name-input" maxlength="120" autocomplete="off" required placeholder="e.g., Sapindoideae or Clematis sect. Atragene">
+      <details class="clade-segment-editor">
+        <summary>Rich-text segment styling (optional)</summary>
+        <p class="hint">Style individual text runs (e.g., italic taxon name + roman authority or rank) with custom font, size, color, bold, or italic settings.</p>
+        <div class="clade-segment-preview-wrap">
+          <span>Live preview</span>
+          <div id="clade-segment-preview" class="clade-segment-preview" aria-live="polite"></div>
+        </div>
+        <div id="clade-segment-list" class="clade-segment-list"></div>
+        <div class="clade-segment-actions">
+          <button id="clade-segment-split" type="button" class="button compact">Split by words</button>
+          <button id="clade-segment-add" type="button" class="button compact">＋ Add segment</button>
+          <button id="clade-segment-reset" type="button" class="button compact">Reset to uniform style</button>
+        </div>
+      </details>
+      <fieldset class="orientation-field">
+        <legend>Label orientation</legend>
+        <div class="orientation-options">
+          <label><input id="clade-orientation-auto" type="radio" name="clade-name-orientation" value="auto" checked> Automatic (compact right margin)</label>
+          <label><input id="clade-orientation-horizontal" type="radio" name="clade-name-orientation" value="horizontal"> Horizontal</label>
+          <label><input id="clade-orientation-vertical" type="radio" name="clade-name-orientation" value="vertical"> Vertical (90° clockwise)</label>
+        </div>
+      </fieldset>
+      <div class="clade-segment-style-grid">
+        <div class="clade-segment-field">
+          <label for="clade-bar-tier">Bracket tier</label>
+          <select id="clade-bar-tier">
+            <option value="auto" selected>Automatic (from nesting)</option>
+            <option value="0">Inner tier 1 (Genus / Subclade)</option>
+            <option value="1">Outer tier 2 (Subfamily / Tribe)</option>
+            <option value="2">Outer tier 3 (Family / Superclade)</option>
+            <option value="3">Outer tier 4</option>
+            <option value="4">Outer tier 5</option>
+            <option value="5">Outer tier 6</option>
+          </select>
+        </div>
+        <div class="clade-segment-field">
+          <label for="clade-bar-style">Bracket line style</label>
+          <select id="clade-bar-style">
+            <option value="auto" selected>Automatic (solid inner, dashed outer)</option>
+            <option value="solid">Solid line (───)</option>
+            <option value="dashed">Dashed line (- - -)</option>
+            <option value="dash-dot">Dash-dot line (- · -)</option>
+          </select>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button id="cancel-clade-name" type="button" class="button">Cancel</button>
+        <button id="save-clade-name" type="submit" class="button primary">Save Clade</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="tip-rename-dialog" class="clade-dialog tip-rename-dialog">
+    <form id="tip-rename-form">
+      <h2>Edit Tip Display Label</h2>
+      <p class="dialog-summary">Original identifier in tree file</p>
+      <div id="tip-rename-original" class="tip-rename-original"></div>
+      <label for="tip-rename-input">Display label on figure</label>
+      <input id="tip-rename-input" maxlength="1000" autocomplete="off" required placeholder="Enter publication display label">
+      <p class="hint">Updates displayed and exported text only; original identifiers remain anchored for rooting and bipartition matching.</p>
+      <div class="dialog-actions tip-rename-dialog-actions">
+        <button id="tip-rename-restore" type="button" class="button">Restore Original</button>
+        <span class="dialog-action-spacer"></span>
+        <button id="tip-rename-cancel" type="button" class="button">Cancel</button>
+        <button type="submit" class="button primary">Save Label</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="export-progress-dialog" class="export-progress-dialog" aria-labelledby="export-progress-title" aria-describedby="export-progress-note">
+    <div class="export-progress-heading"><span id="export-progress-icon" aria-hidden="true">↓</span><span id="export-progress-format">Export Figure</span></div>
+    <h2 id="export-progress-title">Preparing Export</h2>
+    <p id="export-progress-detail" role="status" aria-live="polite"></p>
+    <progress id="export-progress-bar" max="4" value="0" aria-label="Export step progress"></progress>
+    <div class="export-progress-meta"><span id="export-progress-stage">Step 1 / 4</span><span id="export-progress-elapsed">Elapsed 0 s</span></div>
+    <ol id="export-progress-steps"></ol>
+    <p id="export-progress-note">Large phylogenies may take up to a few minutes. Steps reflect completed export stages rather than remaining time; keep this tab open until download completes.</p>
+    <div class="dialog-actions"><button id="export-progress-cancel" type="button" class="button">Cancel Export</button><button id="export-progress-close" type="button" class="button primary" hidden>Return to Canvas</button></div>
+  </dialog>
+
+  <script src="taxon-rank-normalizer.js?v=20260827-rank-spacing1"></script>
+  <script src="core/sample-identity.js?v=20261029-shared-policy1"></script>
+  <script src="core/tree-order.js?v=20261029-shared-policy1"></script>
+  <script src="tree-rooting.js?v=20260925-idempotent-rooting1"></script>
+  <script src="time-scale.js?v=20260713-time-tree1"></script>
+  <script src="vendor/jszip.min.js?v=3.10.1"></script>
+  <script src="tip-label-mapping.js?v=20260810-font-portability1"></script>
+  <script src="figure-units.js?v=20260907-physical-units1"></script>
+  <script src="conflict-tree.js?v=20260927-connector-clearance1"></script>
+  <script src="core/support-scale.js?v=20261031-strict-units3"></script>
+  <script src="core/support-values.js?v=20261030-source-units1"></script>
+  <script src="ui/support-units.js?v=20261030-source-units1"></script>
+  <script src="core/tree-input.js?v=20261007-stability1"></script>
+  <script src="core/gene-rooting.js?v=20261102-multiple-outgroups1"></script>
+  <script src="cloud-tree.js?v=20261002-cloud-pie-size25"></script>
+  <script src="core/time-model.js?v=20261009-hpd1"></script>
+  <script src="core/gene-preparation.js?v=20261007-stability1"></script>
+  <script src="core/phyparts-engine.js?v=20261103-candidates2"></script>
+  <script src="core/input-tasks.js?v=20261007-stability1"></script>
+  <script src="core/native-client.js?v=20261007-stability1"></script>
+  <script src="core/analysis-spec.js?v=20261031-cache4"></script>
+  <script src="core/build-info.js?v=20261005-audit1"></script>
+  <script src="core/cloud-group-colors.js?v=20261011-group-colors"></script>
+  <script src="core/cloud-jitter.js?v=20261011-jitter"></script>
+  <script src="core/tree-panels.js?v=20261016-two-panels1"></script>
+  <script src="core/tree-panel-clades.js"></script>
+  <script src="core/name-format.js?v=20261008-modules1"></script>
+  <script src="core/tree-geometry.js?v=20261008-modules1"></script>
+  <script src="core/label-geometry.js?v=20261008-modules1"></script>
+  <script src="core/document-state.js?v=20261008-modules1"></script>
+  <script src="core/render-scheduler.js?v=20261008-modules1"></script>
+  <script src="render/node-label-layout.js?v=20261008-modules1"></script>
+  <script data-demo-optional data-demo-src="defaults/cloud-workspace.local.js?v=20261001-cloud-start1"></script>
+  <script data-demo-src="defaults/ordinary-workspace.js?v=20261004-compact58"></script>
+  <script data-demo-src="defaults/dating-synthetic.js?v=20261030-synthetic27"></script>
+  <script src="figure-contract.js?v=20261004-time-typography1"></script>
+  <script src="core/output-geometry.js"></script>
+  <script src="core/geologic-timescale.js"></script>
+  <script src="core/time-display.js"></script>
+  <script src="core/clade-hierarchy.js"></script>
+  <script src="core/clade-layout.js"></script>
+  <script src="core/dating-label-policy.js"></script>
+  <script src="core/figure-report.js"></script>
+  <script src="core/tree-panel-report.js"></script>
+  <script src="render/geologic-grid.js"></script>
+  <script src="render/time-background.js"></script>
+  <script src="render/canvas-finalizer.js"></script>
+  <script src="render/tip-width.js"></script>
+  <script src="render/png-raster.js"></script>
+  <script src="render/time-tree.js"></script>
+  <script src="render/cloud-branches.js"></script>
+  <script src="render/cloud-pies.js"></script>
+  <script src="render/cloud-tree.js"></script>
+  <script src="render/conflict-branches.js"></script>
+  <script src="render/conflict-support.js"></script>
+  <script src="render/conflict-tree.js"></script>
+  <script src="core/sample-name-state.js"></script>
+<script src="ui/sample-names.js"></script>
+<script src="ui/import-state.js"></script>
+<script src="ui/numeric-controls.js?v=20261015-ui-consistency1"></script>
+<script src="core/figure-input-validation.js"></script>
+<script src="core/bridge-helpers.js"></script>
+<script src="app.js?v=20261005-left-io1"></script>
+  <script src="panel-resize.js?v=20261003-panel-restore-icon1"></script>
+  <script src="agent-bridge.js?v=20261004-cloud-crown-age1"></script>
+</body>
+</html>

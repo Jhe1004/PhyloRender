@@ -1,0 +1,39 @@
+/* Workbench-only presentation. This sheet is intentionally excluded from exported SVG CSS. */
+.controls .compact-numeric-control :is(output, .numeric-scale),
+.controls .compact-numeric-control .numeric-precise-control > label,
+.controls .compact-numeric-stepper > span { display: none !important; }
+.controls .compact-numeric-control .numeric-card-head { margin-bottom: 8px; }
+.controls .compact-numeric-control .numeric-precise-control { margin: 0; padding: 0; }
+.numeric-stepper.compact-numeric-stepper {
+  display: grid; grid-template-columns: 34px minmax(0, 1fr) 34px;
+  width: 100%; min-width: 0; border: 1px solid #c8c9cc; border-radius: 5px;
+  background: #fff; flex: 1 1 auto;
+}
+.numeric-stepper.compact-numeric-stepper button {
+  width: 34px; height: 34px; padding: 0; border: 0; background: #eeefef;
+  color: #404755; font-size: 20px; font-weight: 400;
+}
+.numeric-stepper.compact-numeric-stepper input[type="number"] {
+  width: 100%; min-width: 0; height: 34px; min-height: 34px; padding: 4px 8px;
+  border: 0; border-radius: 0; background: #fff; text-align: center;
+  font: 400 15px/1.3 Arial, sans-serif; font-variant-numeric: tabular-nums;
+}
+.controls .numeric-unit { color: #73777d; white-space: nowrap; }
+.controls .standalone-compact-numeric { margin: 6px 0 10px; }
+.controls input[type="number"]:not(.numeric-stepper input):not(.time-age-range-input input) {
+  width: 100%; min-height: 36px; padding: 7px 9px; border: 1px solid #c8c9cc;
+  border-radius: 5px; color: #404755; background: #fff; font: 400 13px/1.3 Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.controls .numeric-help, .controls .help-note-icon {
+  width: 18px; height: 18px; flex-basis: 18px; border-color: #c0c2c7; color: #878d99;
+  font: 600 11px/1 Arial, sans-serif;
+}
+.controls .hint { margin-top: 8px; color: #747983; font-size: 11px; line-height: 1.55; }
+.controls :is(.time-detection-status, .time-age-range-status, .taxon-name-status, .tip-map-status, .output-layout-status, .conflict-sample-summary) {
+  padding: 8px 10px; border: 0; border-left: 3px solid #aeb2ba; border-radius: 3px;
+  background: #eeedea; color: #5f6570; font-size: 11px; font-weight: 400; line-height: 1.5;
+}
+.conflict-file-card #cloud-root-age { width: 100%; box-sizing: border-box; }
+.canvas-error-banner { display: none; padding: 8px 14px; background: #fff1ef; color: #8c2e28; border-bottom: 1px solid #e4b4af; font-size: 13px; line-height: 1.5; }
+main.controls-collapsed .canvas-error-banner:not([hidden]) { display: block; }

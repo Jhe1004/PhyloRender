@@ -1,0 +1,31 @@
+services:
+  mcp:
+    image: ${PHYLORENDER_MCP_IMAGE:-phylorender-mcp:local}
+    container_name: phylorender-mcp
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:8766:8766"
+    env_file:
+      - ${PHYLORENDER_MCP_ENV_FILE:-/srv/services/phylorender/mcp/shared/mcp.env}
+    environment:
+      NODE_ENV: production
+      PHYLORENDER_MCP_HOST: 0.0.0.0
+      PHYLORENDER_MCP_PORT: 8766
+      PHYLORENDER_OUTPUT_ROOT: /data/figures
+    volumes:
+      - ${PHYLORENDER_MCP_DATA_DIR:-/srv/services/phylorender/mcp/shared/figures}:/data/figures
+    tmpfs:
+      - /tmp:size=2g,mode=1777
+    shm_size: 1gb
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          node -e "fetch('http://127.0.0.1:8766/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s

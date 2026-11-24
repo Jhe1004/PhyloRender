@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "cases": [
+    {
+      "file": "ordinary-58.json",
+      "sha256": "a2558cf9d7b3e5438108ec2cff0250d380c684459722cbfd338e1df90f855750"
+    },
+    {
+      "file": "dating-27.json",
+      "sha256": "8de5abc04456eaee83e87b5eaf90a79f5a4611aa220fdf5360177030b84b582a"
+    },
+    {
+      "file": "conflict-12.json",
+      "sha256": "b210ef4f83342022caed77a804289be8a911c66542de8b49c933b7d1849d12b3"
+    },
+    {
+      "file": "cloud-5.json",
+      "sha256": "67a2f00912040cc2c8406aef0befa8e67ab25c7375822ae7c0c3020d975d32da"
+    }
+  ]
+}

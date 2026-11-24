@@ -1,0 +1,20 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+test('compact point editors preserve backing controls and skip hidden legacy caption controls', () => {
+  const source = fs.readFileSync(path.join(__dirname, '../app.js'), 'utf8');
+  const css = fs.readFileSync(path.join(__dirname, '../ui-shell.css'), 'utf8');
+  const module = fs.readFileSync(path.join(__dirname, '../ui/numeric-controls.js'), 'utf8');
+  const compact = source.slice(source.indexOf('function configureCompactNumericInputs()'), source.indexOf('function refreshNumericControls()'));
+  assert.match(compact, /NUMERIC_SETTING_CONTROLS\.filter\(item => item\.unit === "u"\)/);
+  assert.match(compact, /range\.hidden = true/);
+  assert.doesNotMatch(compact, /range\.remove\(/);
+  assert.match(compact, /timeTypes: \["period", "epoch", "legend", "axis", "unit", "key"\]/);
+  assert.match(module, /stepper\.append\(button\(input, -1, label, update\), input, button\(input, 1, label, update\)\)/);
+  assert.match(module, /input\.closest\("\[hidden\]"\)/);
+  const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
+  assert.match(html, /<div hidden aria-hidden="true">\s*<label for="time-key-size">Legacy bottom caption/);
+  assert.match(css, /grid-template-columns: 34px minmax\(0, 1fr\) 34px/);
+  assert.match(css, /\.compact-point-control output/);
+});

@@ -1,0 +1,18 @@
+{
+  "id": "ordinary-58",
+  "spec": {
+    "workspace": "phylogeny",
+    "main_tree": {
+      "name": "ordinary-58.nwk",
+      "content": "(((((Taxon_001:2,(Taxon_002:1,Taxon_003:1)0.95:1)0.95:1,((Taxon_004:1,Taxon_005:1)0.95:1,(Taxon_006:1,Taxon_007:1)0.95:1)0.95:1)0.95:1,((Taxon_008:2,(Taxon_009:1,Taxon_010:1)0.95:1)0.95:1,((Taxon_011:1,Taxon_012:1)0.95:1,(Taxon_013:1,Taxon_014:1)0.95:1)0.95:1)0.95:1)0.95:1,(((Taxon_015:2,(Taxon_016:1,Taxon_017:1)0.95:1)0.95:1,((Taxon_018:1,Taxon_019:1)0.95:1,(Taxon_020:1,Taxon_021:1)0.95:1)0.95:1)0.95:1,(((Taxon_022:1,Taxon_023:1)0.95:1,(Taxon_024:1,Taxon_025:1)0.95:1)0.95:1,((Taxon_026:1,Taxon_027:1)0.95:1,(Taxon_028:1,Taxon_029:1)0.95:1)0.95:1)0.95:1)0.95:1)0.95:1,((((Taxon_030:2,(Taxon_031:1,Taxon_032:1)0.95:1)0.95:1,((Taxon_033:1,Taxon_034:1)0.95:1,(Taxon_035:1,Taxon_036:1)0.95:1)0.95:1)0.95:1,((Taxon_037:2,(Taxon_038:1,Taxon_039:1)0.95:1)0.95:1,((Taxon_040:1,Taxon_041:1)0.95:1,(Taxon_042:1,Taxon_043:1)0.95:1)0.95:1)0.95:1)0.95:1,(((Taxon_044:2,(Taxon_045:1,Taxon_046:1)0.95:1)0.95:1,((Taxon_047:1,Taxon_048:1)0.95:1,(Taxon_049:1,Taxon_050:1)0.95:1)0.95:1)0.95:1,(((Taxon_051:1,Taxon_052:1)0.95:1,(Taxon_053:1,Taxon_054:1)0.95:1)0.95:1,((Taxon_055:1,Taxon_056:1)0.95:1,(Taxon_057:1,Taxon_058:1)0.95:1)0.95:1)0.95:1)0.95:1)0.95:1)0.95;"
+    },
+    "options": {
+      "support": {
+        "scale": "probability"
+      }
+    }
+  },
+  "synthetic": true,
+  "inferential_claim": "none",
+  "input_origin": "Original deterministic artificial topology, lengths, supports and intervals"
+}

@@ -1,0 +1,46 @@
+name: scientific-and-agent-contract
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  dependency-security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: mcp-server/package-lock.json
+      - run: npm ci --prefix mcp-server --ignore-scripts
+      - run: npm audit --prefix mcp-server --omit=dev --audit-level=moderate
+  fast:
+    strategy:
+      matrix:
+        node: [22, 24]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: mcp-server/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm ci --prefix mcp-server
+      - run: node tools/check-project.cjs
+  browser-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --prefix mcp-server
+      - run: npx --prefix mcp-server playwright install --with-deps chromium
+      - name: GUI contract without native scientific dependency
+        run: |
+          node mcp-server/tests/empty-startup.mjs
+          node mcp-server/tests/compact-point-inputs.mjs

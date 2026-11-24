@@ -1,0 +1,30 @@
+.DS_Store
+defaults/cloud-workspace.local.js
+*.log
+*.tmp
+*.swp
+*~
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/
+
+# Owner's empirical inputs and generated figures; local handoff only.
+/private-tests/
+
+# 本地验收生成物保存在阶段目录，不进入正式源码仓库。
+/02_验证记录/
+
+backup/
+mcp-server/node_modules/
+mcp-server/var/
+mcp-server/.env
+
+# 独立研究子项目，不属于 PhyloRender 根项目的版本边界。
+taxon-name-model/
+
+# Local-only third-party macOS executables. The complete local handoff archive
+# retains them; a cloud clone installs platform-appropriate binaries instead.
+tools/gnfinder/bin/
+tools/gnparser/bin/
+skills/phylorender-mcp/local-config.json

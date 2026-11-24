@@ -1,0 +1,1 @@
+run_id,task_id,execution_kind,tool_versions,task_bundle_sha256,input_sha256,build_id,platform,browser_version,start_utc,end_utc,elapsed_seconds,retries,success,failed_checks,error_code,svg_sha256,png_sha256,configuration_sha256,full_trace_path

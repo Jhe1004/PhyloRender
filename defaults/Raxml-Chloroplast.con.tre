@@ -1,0 +1,365 @@
+#NEXUS
+[ID: 7948826058]
+begin taxa;
+	dimensions ntax=173;
+	taxlabels
+		Aconitum_barbatum
+		Aconitum_leucostomum
+		Aconitum_carmichaelii
+		Aconitum_jaluense_subsp.jaluense
+		Aconitum_japonicum_subsp.napiforme
+		Aconitum_kusnezoffii
+		Aconitum_hemsleyanum
+		Aconitum_vilmorinianum
+		Aconitum_kongboense
+		Aconitum_pulchellum
+		Gymnaconitum_gymnandrum
+		Staphisagria_macrosperma
+		Consolida_ajacis
+		Consolida_regalis
+		Delphinium_anthriscifolium
+		Delphinium_caeruleum
+		Delphinium_pylzowii_var.trigynum
+		Delphinium_platyonychinum
+		Delphinium_ceratophorum
+		Delphinium_spirocentrum
+		Delphinium_tatsienense
+		Delphinium_trichophorum
+		Delphinium_grandiflorum
+		Delphinium_kamaonense
+		Delphinium_elatum_var.sericeum
+		Actaea_asiatica
+		Actaea_erythrocarpa
+		Actaea_dahurica
+		Actaea_simplex
+		Actaea_japonica
+		Actaea_vaginata
+		Eranthis_byunsanensis
+		Eranthis_stellata
+		Anemonopsis_macrophylla
+		Beesia_calthifolia
+		Dichocarpum_dalzielii
+		Dichocarpum_sutchuenense
+		Dichocarpum_franchetii
+		Dichocarpum_trifoliolatum
+		Paraquilegia_anemonoides
+		Paraquilegia_microphylla
+		Paropyrum_anemonoides
+		Thalictrum_acutifolium
+		Thalictrum_thalictroides
+		Thalictrum_urbainii
+		Thalictrum_aquilegiifolium_var.sibiricum
+		Thalictrum_petaloideum
+		Thalictrum_fargesii
+		Thalictrum_flavum
+		Thalictrum_lucidum
+		Thalictrum_simplex
+		Thalictrum_minus
+		Thalictrum_foetidum
+		Thalictrum_elegans
+		Thalictrum_smithii
+		Thalictrum_sparsiflorum
+		Thalictrum_reniforme
+		Thalictrum_trichopus
+		Thalictrum_virgatum
+		Thalictrum_foeniculaceum
+		Leptopyrum_fumarioides
+		Aquilegia_formosa
+		Aquilegia_viridiflora
+		Aquilegia_vulgaris
+		Aquilegia_yabeana
+		Semiaquilegia_adoxoides
+		Urophysa_rockii
+		Urophysa_henryi
+		Enemion_raddeanum
+		Isopyrum_manshuricum
+		Isopyrum_thalictroides
+		Adonis_aestivalis_subsp.parviflora
+		Adonis_amurensis
+		Adonis_ramosa
+		Adonis_bobroviana
+		Adonis_coerulea
+		Adonis_davidii
+		Adonis_sibirica
+		Adonis_sutchuenensis
+		Adonis_ramosa_subsp.fupingensis
+		Adonis_villosa
+		Calathodes_oxycarpa
+		Megaleranthis_saniculifolia
+		Trollius_altaicus
+		Trollius_chinensis
+		Trollius_lilacinus
+		Trollius_pumilus
+		Trollius_ranunculoides
+		Trollius_yunnanensis
+		Coptis_chinensis
+		Coptis_huanjiangensis
+		Coptis_omeiensis
+		Coptis_japonica_var.dissecta
+		Coptis_teeta
+		Coptis_quinquefolia
+		Xanthorhiza_simplicissima
+		Hydrastis_canadensis
+		Asteropyrum_cavaleriei
+		Asteropyrum_peltatum
+		Caltha_palustris
+		Caltha_sagittata
+		Callianthemum_alatavicum
+		Callianthemum_miyabeanum
+		Callianthemum_taipaicum
+		Helleborus_foetidus
+		Helleborus_thibetanus
+		Helleborus_viridis
+		Glaucidium_palmatum
+		Akebia_quinata
+		Euptelea_pleiosperma
+		Beckwithia_andersonii
+		Trautvetteria_caroliniensis_var.japonica
+		Oxygraphis_delavayi
+		Halerpestes_sarmentosa
+		Halerpestes_tricuspis
+		Peltocalathos_baurii
+		Oxygraphis_glacialis
+		Oxygraphis_tenuifolia
+		Oxygraphis_sikkimensis
+		Ranunculus_arcis
+		Ranunculus_lanuginosus
+		Ranunculus_repens
+		Ranunculus_sardous
+		Ranunculus_bungei
+		Ranunculus_natans
+		Ranunculus_sceleratus
+		Ranunculus_papulentus
+		Ranunculus_pulchellus
+		Ficaria_verna
+		Anemoclema_glaucifolium
+		Clematis_alternata
+		Clematis_songorica
+		Clematis_xiangguiensis
+		Clematis_aureolata
+		Clematis_brevicaudata
+		Anemone_altaica
+		Anemone_amurensis
+		Anemone_raddeana
+		Anemone_sylvestris
+		Anemone_exigua
+		Knowltonia_crassifolia
+		Oreithales_integrifolia
+		Anemone_begoniifolia
+		Anemone_rivularis
+		Pulsatilla_ambigua
+		Pulsatilla_cernua
+		Pulsatilla_chinensis
+		Pulsatilla_patens
+		Anemone_hupehensis
+		Anemone_tomentosa
+		Anemone_vitifolia
+		Hepatica_acutiloba
+		Hepatica_americana
+		Hepatica_falconeri
+		Hepatica_henryi
+		Hepatica_transsilvanica
+		Hepatica_nobilis
+		Anemone_cathayensis
+		Anemone_demissa
+		Anemone_elongata
+		Anemone_obtusiloba
+		Anemone_flaccida
+		Anemone_dichotomum
+		Ceratocephala_falcata
+		Ceratocephala_orthocera
+		Garidella_nigellastrum
+		Nigella_damascena
+		Komaroffia_bucharica
+		Komaroffia_diversifolia
+		Meconopsis_integrifolia
+		Menispermum_canadense
+		Berberis_bealei
+		Myosurus_minimus
+		;
+end;
+begin trees;
+	translate
+		1	Aconitum_barbatum,
+		2	Aconitum_leucostomum,
+		3	Aconitum_carmichaelii,
+		4	Aconitum_jaluense_subsp.jaluense,
+		5	Aconitum_japonicum_subsp.napiforme,
+		6	Aconitum_kusnezoffii,
+		7	Aconitum_hemsleyanum,
+		8	Aconitum_vilmorinianum,
+		9	Aconitum_kongboense,
+		10	Aconitum_pulchellum,
+		11	Gymnaconitum_gymnandrum,
+		12	Staphisagria_macrosperma,
+		13	Consolida_ajacis,
+		14	Consolida_regalis,
+		15	Delphinium_anthriscifolium,
+		16	Delphinium_caeruleum,
+		17	Delphinium_pylzowii_var.trigynum,
+		18	Delphinium_platyonychinum,
+		19	Delphinium_ceratophorum,
+		20	Delphinium_spirocentrum,
+		21	Delphinium_tatsienense,
+		22	Delphinium_trichophorum,
+		23	Delphinium_grandiflorum,
+		24	Delphinium_kamaonense,
+		25	Delphinium_elatum_var.sericeum,
+		26	Actaea_asiatica,
+		27	Actaea_erythrocarpa,
+		28	Actaea_dahurica,
+		29	Actaea_simplex,
+		30	Actaea_japonica,
+		31	Actaea_vaginata,
+		32	Eranthis_byunsanensis,
+		33	Eranthis_stellata,
+		34	Anemonopsis_macrophylla,
+		35	Beesia_calthifolia,
+		36	Dichocarpum_dalzielii,
+		37	Dichocarpum_sutchuenense,
+		38	Dichocarpum_franchetii,
+		39	Dichocarpum_trifoliolatum,
+		40	Paraquilegia_anemonoides,
+		41	Paraquilegia_microphylla,
+		42	Paropyrum_anemonoides,
+		43	Thalictrum_acutifolium,
+		44	Thalictrum_thalictroides,
+		45	Thalictrum_urbainii,
+		46	Thalictrum_aquilegiifolium_var.sibiricum,
+		47	Thalictrum_petaloideum,
+		48	Thalictrum_fargesii,
+		49	Thalictrum_flavum,
+		50	Thalictrum_lucidum,
+		51	Thalictrum_simplex,
+		52	Thalictrum_minus,
+		53	Thalictrum_foetidum,
+		54	Thalictrum_elegans,
+		55	Thalictrum_smithii,
+		56	Thalictrum_sparsiflorum,
+		57	Thalictrum_reniforme,
+		58	Thalictrum_trichopus,
+		59	Thalictrum_virgatum,
+		60	Thalictrum_foeniculaceum,
+		61	Leptopyrum_fumarioides,
+		62	Aquilegia_formosa,
+		63	Aquilegia_viridiflora,
+		64	Aquilegia_vulgaris,
+		65	Aquilegia_yabeana,
+		66	Semiaquilegia_adoxoides,
+		67	Urophysa_rockii,
+		68	Urophysa_henryi,
+		69	Enemion_raddeanum,
+		70	Isopyrum_manshuricum,
+		71	Isopyrum_thalictroides,
+		72	Adonis_aestivalis_subsp.parviflora,
+		73	Adonis_amurensis,
+		74	Adonis_ramosa,
+		75	Adonis_bobroviana,
+		76	Adonis_coerulea,
+		77	Adonis_davidii,
+		78	Adonis_sibirica,
+		79	Adonis_sutchuenensis,
+		80	Adonis_ramosa_subsp.fupingensis,
+		81	Adonis_villosa,
+		82	Calathodes_oxycarpa,
+		83	Megaleranthis_saniculifolia,
+		84	Trollius_altaicus,
+		85	Trollius_chinensis,
+		86	Trollius_lilacinus,
+		87	Trollius_pumilus,
+		88	Trollius_ranunculoides,
+		89	Trollius_yunnanensis,
+		90	Coptis_chinensis,
+		91	Coptis_huanjiangensis,
+		92	Coptis_omeiensis,
+		93	Coptis_japonica_var.dissecta,
+		94	Coptis_teeta,
+		95	Coptis_quinquefolia,
+		96	Xanthorhiza_simplicissima,
+		97	Hydrastis_canadensis,
+		98	Asteropyrum_cavaleriei,
+		99	Asteropyrum_peltatum,
+		100	Caltha_palustris,
+		101	Caltha_sagittata,
+		102	Callianthemum_alatavicum,
+		103	Callianthemum_miyabeanum,
+		104	Callianthemum_taipaicum,
+		105	Helleborus_foetidus,
+		106	Helleborus_thibetanus,
+		107	Helleborus_viridis,
+		108	Glaucidium_palmatum,
+		109	Akebia_quinata,
+		110	Euptelea_pleiosperma,
+		111	Beckwithia_andersonii,
+		112	Trautvetteria_caroliniensis_var.japonica,
+		113	Oxygraphis_delavayi,
+		114	Halerpestes_sarmentosa,
+		115	Halerpestes_tricuspis,
+		116	Peltocalathos_baurii,
+		117	Oxygraphis_glacialis,
+		118	Oxygraphis_tenuifolia,
+		119	Oxygraphis_sikkimensis,
+		120	Ranunculus_arcis,
+		121	Ranunculus_lanuginosus,
+		122	Ranunculus_repens,
+		123	Ranunculus_sardous,
+		124	Ranunculus_bungei,
+		125	Ranunculus_natans,
+		126	Ranunculus_sceleratus,
+		127	Ranunculus_papulentus,
+		128	Ranunculus_pulchellus,
+		129	Ficaria_verna,
+		130	Anemoclema_glaucifolium,
+		131	Clematis_alternata,
+		132	Clematis_songorica,
+		133	Clematis_xiangguiensis,
+		134	Clematis_aureolata,
+		135	Clematis_brevicaudata,
+		136	Anemone_altaica,
+		137	Anemone_amurensis,
+		138	Anemone_raddeana,
+		139	Anemone_sylvestris,
+		140	Anemone_exigua,
+		141	Knowltonia_crassifolia,
+		142	Oreithales_integrifolia,
+		143	Anemone_begoniifolia,
+		144	Anemone_rivularis,
+		145	Pulsatilla_ambigua,
+		146	Pulsatilla_cernua,
+		147	Pulsatilla_chinensis,
+		148	Pulsatilla_patens,
+		149	Anemone_hupehensis,
+		150	Anemone_tomentosa,
+		151	Anemone_vitifolia,
+		152	Hepatica_acutiloba,
+		153	Hepatica_americana,
+		154	Hepatica_falconeri,
+		155	Hepatica_henryi,
+		156	Hepatica_transsilvanica,
+		157	Hepatica_nobilis,
+		158	Anemone_cathayensis,
+		159	Anemone_demissa,
+		160	Anemone_elongata,
+		161	Anemone_obtusiloba,
+		162	Anemone_flaccida,
+		163	Anemone_dichotomum,
+		164	Ceratocephala_falcata,
+		165	Ceratocephala_orthocera,
+		166	Garidella_nigellastrum,
+		167	Nigella_damascena,
+		168	Komaroffia_bucharica,
+		169	Komaroffia_diversifolia,
+		170	Meconopsis_integrifolia,
+		171	Menispermum_canadense,
+		172	Berberis_bealei,
+		173	Myosurus_minimus
+		;
+   [Note: This tree contains information on the topology, 
+          branch lengths (if present), and the probability
+          of the partition indicated by the branch.]
+   tree con_all_compat = (1:6.407773e-04,2:7.254759e-04,((((3:3.964172e-05,(4:1.460339e-05,5:2.148899e-04)0.346:1.658430e-05)1.000:4.854941e-04,6:3.588493e-04)1.000:3.198645e-03,((7:2.752194e-04,8:1.187351e-04)1.000:2.124311e-03,(9:1.350762e-03,10:1.539753e-03)1.000:2.666466e-04)1.000:1.489646e-03)1.000:7.368363e-03,((11:2.717842e-02,(((13:5.926013e-03,14:4.711018e-03)1.000:1.667838e-02,((((16:1.057465e-03,17:6.466148e-04)1.000:1.069935e-03,18:1.220953e-03)1.000:2.177184e-03,(((19:1.424375e-03,(20:5.750876e-04,21:8.937315e-04)1.000:3.991032e-04)1.000:2.948502e-04,22:9.589719e-04)1.000:1.464818e-03,(23:1.355173e-03,24:1.024591e-03)1.000:1.408950e-03)1.000:8.638194e-04)1.000:4.307974e-04,25:3.234795e-03)1.000:1.772211e-02)1.000:3.640954e-03,15:2.433164e-02)1.000:7.944078e-03)1.000:8.661836e-04,(12:2.089360e-02,(((((((((26:7.921834e-05,27:1.525771e-04)1.000:7.839843e-03,31:1.210551e-02)0.611:4.033505e-04,30:6.011566e-03)0.989:3.337015e-04,(28:4.990499e-03,29:4.935157e-03)1.000:2.647429e-03)1.000:7.105577e-03,(32:1.158107e-02,33:1.061408e-02)1.000:1.473821e-02)1.000:1.028042e-02,(34:5.470458e-03,35:8.480572e-03)1.000:1.271070e-02)1.000:3.469914e-02,(((((((36:1.360093e-05,37:1.880295e-05)1.000:8.822161e-03,(38:4.746270e-03,39:5.290645e-03)1.000:5.285802e-03)1.000:1.930767e-02,((((62:1.253612e-03,((63:6.115899e-04,64:7.910188e-04)1.000:2.806276e-04,65:8.335154e-04)1.000:3.865003e-04)1.000:4.313589e-03,66:9.350059e-03)0.998:4.861492e-04,(67:6.823966e-03,68:6.121674e-03)1.000:1.043404e-03)1.000:6.626871e-02,(69:1.534991e-02,(70:1.071827e-02,71:8.592560e-03)1.000:2.053299e-02)1.000:4.375848e-02)1.000:1.513445e-02)0.990:1.150893e-03,((((40:1.826420e-03,41:2.029796e-03)1.000:8.959907e-04,42:3.566616e-03)1.000:9.112016e-03,61:2.596580e-02)1.000:8.242631e-03,((43:3.881263e-03,(44:4.789627e-03,45:6.147532e-03)1.000:1.311901e-03)1.000:8.108632e-03,((((((46:6.689502e-04,47:1.431691e-03)1.000:2.488411e-03,(48:1.794307e-03,(((49:3.667516e-05,50:1.299163e-04)1.000:1.542237e-04,51:2.213444e-04)1.000:4.144689e-04,52:5.476526e-04)1.000:1.516187e-03)1.000:1.747106e-03)1.000:4.187074e-04,53:3.206705e-03)1.000:5.034446e-04,((54:1.849489e-03,57:1.978020e-03)1.000:4.994246e-04,(55:1.448931e-03,56:1.268305e-03)1.000:6.487044e-04)1.000:2.123648e-03)1.000:9.314320e-04,59:5.510849e-03)1.000:8.754171e-04,(58:5.252542e-03,60:6.939888e-03)1.000:4.151168e-04)1.000:7.041083e-03)1.000:4.018237e-03)1.000:4.667915e-03)1.000:5.600042e-02,((72:3.337525e-02,(((73:9.857501e-04,74:1.305201e-03)1.000:1.785456e-03,75:4.611325e-03)1.000:1.935030e-03,((((76:5.914144e-03,77:2.129533e-03)1.000:3.519089e-04,78:2.129470e-03)1.000:1.571467e-04,(79:2.913159e-03,80:3.603704e-03)0.999:1.409564e-04)1.000:4.645958e-03,81:4.249577e-03)1.000:6.494295e-04)1.000:8.699018e-03)1.000:2.162316e-02,(82:6.046813e-03,(((83:3.565661e-03,(84:1.040329e-03,85:1.516691e-03)1.000:9.109046e-04)1.000:3.077227e-03,((87:3.636800e-04,88:5.738991e-04)1.000:1.966429e-04,89:6.224125e-04)1.000:3.321623e-03)1.000:1.676754e-03,86:4.178641e-03)1.000:8.087420e-04)1.000:1.576615e-02)1.000:4.142825e-02)1.000:3.085363e-03,((((((90:3.520006e-03,(91:3.217983e-03,92:2.852654e-03)1.000:1.941513e-03)1.000:1.210305e-03,94:5.112865e-03)1.000:3.692349e-04,93:5.838293e-03)1.000:5.082749e-03,95:1.193078e-02)1.000:9.033470e-03,96:1.245280e-02)1.000:5.856320e-02,(97:5.990441e-02,(108:1.053468e-01,(((109:6.495306e-02,(110:3.193221e-02,170:1.640687e-01)1.000:6.828300e-03)1.000:1.284812e-02,171:1.088360e-01)1.000:1.373119e-02,172:1.924188e-01)1.000:1.925768e-02)1.000:4.860931e-03)1.000:1.403198e-02)1.000:7.845508e-03)1.000:2.872611e-03,((98:3.229247e-03,99:3.906598e-03)1.000:6.622845e-02,(100:7.686999e-03,101:6.916307e-03)1.000:6.423935e-02)0.559:2.153334e-03)0.421:4.874207e-04)0.412:5.926589e-04,((102:3.440916e-03,(103:2.552385e-03,104:2.316628e-03)1.000:3.264832e-03)1.000:5.369704e-02,((105:7.637512e-03,(106:2.051066e-03,107:2.378933e-03)1.000:4.814869e-03)1.000:6.601561e-02,(((111:2.077036e-02,(((112:2.143708e-02,(114:2.264600e-03,115:9.855560e-04)1.000:3.166233e-02)1.000:5.690493e-03,(113:1.594222e-02,((117:4.819955e-03,118:3.349779e-03)1.000:1.352148e-03,119:5.464694e-03)1.000:3.165001e-02)1.000:7.072559e-03)1.000:5.354465e-03,116:3.135978e-02)1.000:3.619744e-03)1.000:2.213520e-02,((((((120:2.533761e-04,121:1.863263e-04)1.000:1.649086e-02,(122:2.093991e-03,123:3.999244e-03)1.000:1.502329e-02)1.000:2.690073e-02,(((124:1.270695e-02,(125:1.649048e-03,126:1.220617e-03)1.000:2.674637e-03)1.000:9.152405e-04,127:3.962284e-03)1.000:1.472085e-02,128:2.547480e-02)1.000:8.604018e-03)1.000:2.674910e-02,(164:4.030669e-05,165:2.154269e-05)1.000:1.627164e-01)0.890:1.110681e-02,173:2.430332e-01)1.000:1.094246e-02,129:5.279961e-02)1.000:3.211498e-03)1.000:5.837182e-02,(((130:2.142964e-02,(((131:4.278168e-03,134:7.127426e-03)1.000:6.831796e-04,(132:2.969379e-03,135:4.118094e-03)0.982:2.978450e-04)1.000:4.719924e-04,133:4.429615e-03)1.000:1.772119e-02)1.000:9.842392e-03,(((((152:1.318236e-03,153:1.330403e-03)1.000:2.345256e-03,155:1.822627e-03)1.000:4.033454e-04,(156:2.651578e-04,157:1.040085e-04)1.000:1.967490e-03)1.000:1.943476e-03,154:3.758836e-03)1.000:1.566935e-02,((((158:1.215560e-03,(159:9.161503e-04,160:7.584220e-04)1.000:5.558726e-04)1.000:4.918761e-03,161:9.198876e-03)1.000:2.405820e-02,162:2.947442e-02)1.000:2.372899e-03,163:3.973468e-02)1.000:1.047570e-02)1.000:7.863016e-03)1.000:3.012888e-03,((((((136:3.333807e-03,137:1.593462e-03)1.000:1.197639e-03,138:3.630287e-03)1.000:7.090128e-04,139:7.514182e-03)1.000:3.411374e-03,140:7.301449e-03)1.000:1.196374e-02,(143:1.071054e-02,(144:9.730775e-03,((149:6.270302e-03,150:5.809781e-03)1.000:1.546313e-03,151:5.078786e-03)1.000:1.091570e-02)1.000:1.130246e-03)1.000:6.825185e-03)1.000:1.356258e-03,((141:6.676521e-03,142:1.153646e-02)1.000:3.827449e-03,(145:8.179714e-03,((146:4.033134e-03,147:3.045083e-03)1.000:1.952785e-03,148:1.838975e-03)1.000:2.271786e-03)1.000:9.577114e-03)1.000:1.185304e-03)1.000:1.948541e-02)1.000:6.103074e-02)1.000:6.331473e-03)0.921:1.486534e-03)1.000:4.625867e-03)0.500:2.778069e-03,((166:1.998287e-02,167:1.438033e-02)1.000:4.654346e-02,(168:1.705445e-05,169:1.841601e-05)1.000:5.699891e-02)1.000:8.334071e-02)1.000:4.703579e-02)1.000:2.118383e-03)1.000:9.563026e-03)1.000:8.594124e-03);
+
+   [Note: This tree contains information only on the topology
+          and branch lengths (median of the posterior probability density).]
+   tree con_all_compat = (1:6.407773e-04,2:7.254759e-04,((((3:3.964172e-05,(4:1.460339e-05,5:2.148899e-04):1.658430e-05):4.854941e-04,6:3.588493e-04):3.198645e-03,((7:2.752194e-04,8:1.187351e-04):2.124311e-03,(9:1.350762e-03,10:1.539753e-03):2.666466e-04):1.489646e-03):7.368363e-03,((11:2.717842e-02,(((13:5.926013e-03,14:4.711018e-03):1.667838e-02,((((16:1.057465e-03,17:6.466148e-04):1.069935e-03,18:1.220953e-03):2.177184e-03,(((19:1.424375e-03,(20:5.750876e-04,21:8.937315e-04):3.991032e-04):2.948502e-04,22:9.589719e-04):1.464818e-03,(23:1.355173e-03,24:1.024591e-03):1.408950e-03):8.638194e-04):4.307974e-04,25:3.234795e-03):1.772211e-02):3.640954e-03,15:2.433164e-02):7.944078e-03):8.661836e-04,(12:2.089360e-02,(((((((((26:7.921834e-05,27:1.525771e-04):7.839843e-03,31:1.210551e-02):4.033505e-04,30:6.011566e-03):3.337015e-04,(28:4.990499e-03,29:4.935157e-03):2.647429e-03):7.105577e-03,(32:1.158107e-02,33:1.061408e-02):1.473821e-02):1.028042e-02,(34:5.470458e-03,35:8.480572e-03):1.271070e-02):3.469914e-02,(((((((36:1.360093e-05,37:1.880295e-05):8.822161e-03,(38:4.746270e-03,39:5.290645e-03):5.285802e-03):1.930767e-02,((((62:1.253612e-03,((63:6.115899e-04,64:7.910188e-04):2.806276e-04,65:8.335154e-04):3.865003e-04):4.313589e-03,66:9.350059e-03):4.861492e-04,(67:6.823966e-03,68:6.121674e-03):1.043404e-03):6.626871e-02,(69:1.534991e-02,(70:1.071827e-02,71:8.592560e-03):2.053299e-02):4.375848e-02):1.513445e-02):1.150893e-03,((((40:1.826420e-03,41:2.029796e-03):8.959907e-04,42:3.566616e-03):9.112016e-03,61:2.596580e-02):8.242631e-03,((43:3.881263e-03,(44:4.789627e-03,45:6.147532e-03):1.311901e-03):8.108632e-03,((((((46:6.689502e-04,47:1.431691e-03):2.488411e-03,(48:1.794307e-03,(((49:3.667516e-05,50:1.299163e-04):1.542237e-04,51:2.213444e-04):4.144689e-04,52:5.476526e-04):1.516187e-03):1.747106e-03):4.187074e-04,53:3.206705e-03):5.034446e-04,((54:1.849489e-03,57:1.978020e-03):4.994246e-04,(55:1.448931e-03,56:1.268305e-03):6.487044e-04):2.123648e-03):9.314320e-04,59:5.510849e-03):8.754171e-04,(58:5.252542e-03,60:6.939888e-03):4.151168e-04):7.041083e-03):4.018237e-03):4.667915e-03):5.600042e-02,((72:3.337525e-02,(((73:9.857501e-04,74:1.305201e-03):1.785456e-03,75:4.611325e-03):1.935030e-03,((((76:5.914144e-03,77:2.129533e-03):3.519089e-04,78:2.129470e-03):1.571467e-04,(79:2.913159e-03,80:3.603704e-03):1.409564e-04):4.645958e-03,81:4.249577e-03):6.494295e-04):8.699018e-03):2.162316e-02,(82:6.046813e-03,(((83:3.565661e-03,(84:1.040329e-03,85:1.516691e-03):9.109046e-04):3.077227e-03,((87:3.636800e-04,88:5.738991e-04):1.966429e-04,89:6.224125e-04):3.321623e-03):1.676754e-03,86:4.178641e-03):8.087420e-04):1.576615e-02):4.142825e-02):3.085363e-03,((((((90:3.520006e-03,(91:3.217983e-03,92:2.852654e-03):1.941513e-03):1.210305e-03,94:5.112865e-03):3.692349e-04,93:5.838293e-03):5.082749e-03,95:1.193078e-02):9.033470e-03,96:1.245280e-02):5.856320e-02,(97:5.990441e-02,(108:1.053468e-01,(((109:6.495306e-02,(110:3.193221e-02,170:1.640687e-01):6.828300e-03):1.284812e-02,171:1.088360e-01):1.373119e-02,172:1.924188e-01):1.925768e-02):4.860931e-03):1.403198e-02):7.845508e-03):2.872611e-03,((98:3.229247e-03,99:3.906598e-03):6.622845e-02,(100:7.686999e-03,101:6.916307e-03):6.423935e-02):2.153334e-03):4.874207e-04):5.926589e-04,((102:3.440916e-03,(103:2.552385e-03,104:2.316628e-03):3.264832e-03):5.369704e-02,((105:7.637512e-03,(106:2.051066e-03,107:2.378933e-03):4.814869e-03):6.601561e-02,(((111:2.077036e-02,(((112:2.143708e-02,(114:2.264600e-03,115:9.855560e-04):3.166233e-02):5.690493e-03,(113:1.594222e-02,((117:4.819955e-03,118:3.349779e-03):1.352148e-03,119:5.464694e-03):3.165001e-02):7.072559e-03):5.354465e-03,116:3.135978e-02):3.619744e-03):2.213520e-02,((((((120:2.533761e-04,121:1.863263e-04):1.649086e-02,(122:2.093991e-03,123:3.999244e-03):1.502329e-02):2.690073e-02,(((124:1.270695e-02,(125:1.649048e-03,126:1.220617e-03):2.674637e-03):9.152405e-04,127:3.962284e-03):1.472085e-02,128:2.547480e-02):8.604018e-03):2.674910e-02,(164:4.030669e-05,165:2.154269e-05):1.627164e-01):1.110681e-02,173:2.430332e-01):1.094246e-02,129:5.279961e-02):3.211498e-03):5.837182e-02,(((130:2.142964e-02,(((131:4.278168e-03,134:7.127426e-03):6.831796e-04,(132:2.969379e-03,135:4.118094e-03):2.978450e-04):4.719924e-04,133:4.429615e-03):1.772119e-02):9.842392e-03,(((((152:1.318236e-03,153:1.330403e-03):2.345256e-03,155:1.822627e-03):4.033454e-04,(156:2.651578e-04,157:1.040085e-04):1.967490e-03):1.943476e-03,154:3.758836e-03):1.566935e-02,((((158:1.215560e-03,(159:9.161503e-04,160:7.584220e-04):5.558726e-04):4.918761e-03,161:9.198876e-03):2.405820e-02,162:2.947442e-02):2.372899e-03,163:3.973468e-02):1.047570e-02):7.863016e-03):3.012888e-03,((((((136:3.333807e-03,137:1.593462e-03):1.197639e-03,138:3.630287e-03):7.090128e-04,139:7.514182e-03):3.411374e-03,140:7.301449e-03):1.196374e-02,(143:1.071054e-02,(144:9.730775e-03,((149:6.270302e-03,150:5.809781e-03):1.546313e-03,151:5.078786e-03):1.091570e-02):1.130246e-03):6.825185e-03):1.356258e-03,((141:6.676521e-03,142:1.153646e-02):3.827449e-03,(145:8.179714e-03,((146:4.033134e-03,147:3.045083e-03):1.952785e-03,148:1.838975e-03):2.271786e-03):9.577114e-03):1.185304e-03):1.948541e-02):6.103074e-02):6.331473e-03):1.486534e-03):4.625867e-03):2.778069e-03,((166:1.998287e-02,167:1.438033e-02):4.654346e-02,(168:1.705445e-05,169:1.841601e-05):5.699891e-02):8.334071e-02):4.703579e-02):2.118383e-03):9.563026e-03):8.594124e-03);
+end;

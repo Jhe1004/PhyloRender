@@ -1,0 +1,107 @@
+function layoutConflictSupports(...args) { return finishRenderSteps(layoutConflictSupportSteps(...args)); }
+function* layoutConflictSupportSteps(entries, { branches, tipRects, nodePoints, leftBounds, rightBounds }) {
+  const { preferred, minimum } = nodeLabelFontSettings();
+  const fonts = readableFontSizes(preferred, minimum);
+  const placed = [];
+  const leaderSegments = [];
+  let residualCollisions = 0;
+  let leaderWarnings = 0;
+  let unplacedCount = 0;
+  let evaluatedCandidateCount = 0;
+  const radius = Number($("node-radius")?.value) || 5;
+  const sorted = [...entries].sort((a, b) => a.position.y - b.position.y || a.position.x - b.position.x);
+  for (const entry of sorted) {
+    yield { phase: "labels", current: placed.length, total: sorted.length };
+    if (!entry.annotation.text) continue;
+    const bounds = entry.side === "left" ? leftBounds : rightBounds;
+    const preferredMetrics = conflictSupportTextMetrics(entry.annotation.text, preferred);
+    const searchX = MAX_PHYLOGENY_CROSSING_RESCUE_EDGE_DISTANCE + preferredMetrics.width + 8;
+    const searchY = MAX_PHYLOGENY_CROSSING_RESCUE_EDGE_DISTANCE + preferredMetrics.height + 8;
+    const localBranches = branches.filter(segment => Math.max(segment.x1, segment.x2) >= entry.position.x - searchX
+      && Math.min(segment.x1, segment.x2) <= entry.position.x + searchX
+      && Math.max(segment.y1, segment.y2) >= entry.position.y - searchY
+      && Math.min(segment.y1, segment.y2) <= entry.position.y + searchY);
+    const localTipRects = tipRects.filter(rect => rect.x + rect.width >= entry.position.x - searchX
+      && rect.x <= entry.position.x + searchX
+      && rect.y + rect.height >= entry.position.y - searchY
+      && rect.y <= entry.position.y + searchY);
+    const localNodePoints = nodePoints.filter(point => point.x >= entry.position.x - searchX
+      && point.x <= entry.position.x + searchX
+      && point.y >= entry.position.y - searchY
+      && point.y <= entry.position.y + searchY);
+    const obstacles = [
+      ...localTipRects.map(rect => ({ ...rect, kind: "tip" })),
+      ...placed.map(item => ({ ...item.rect, kind: "support" })),
+    ];
+    const candidates = [];
+    for (const fontSize of fonts) {
+      for (const candidate of conflictSupportCandidates(entry, entry.annotation.text, fontSize, bounds, localBranches)) {
+          yield;
+          evaluatedCandidateCount += 1;
+          const labelHits = localTipRects.reduce((count, rect) => count + (rectsOverlap(candidate.rect, rect, 2) ? 1 : 0), 0);
+          const supportHits = placed.reduce((count, item) => count + (rectsOverlap(candidate.rect, item.rect, 2) ? 1 : 0), 0);
+          const branchHits = localBranches.reduce((count, segment) => count + (segmentIntersectsRect(segment, candidate.rect, 3) ? 1 : 0), 0);
+          const nodeHits = conflictRectNodeCollisions(candidate.rect, localNodePoints, candidate.layoutNode.id, radius + 1.5);
+          const leaderTextHits = leaderSegments.reduce((count, segment) => count
+            + (segmentIntersectsRect(segment, candidate.rect, 1.5) ? 1 : 0), 0);
+          const physicalCollisionCount = labelHits + supportHits + branchHits + nodeHits + leaderTextHits;
+          if (physicalCollisionCount) continue;
+          const plan = leaderRouteForPlacement(
+            candidate.layoutNode,
+            candidate.rect,
+            localBranches,
+            obstacles,
+            leaderSegments,
+            localNodePoints,
+          );
+          const score = nodeLabelPlacementCost(fontSize, preferred, minimum, plan, {
+            distance: candidate.rect.edgeDistance,
+            sidePenalty: candidate.sidePenalty,
+            arrows: $("leader-lines").checked,
+          });
+          if (!Number.isFinite(score)) continue;
+          candidates.push({
+            ...candidate,
+            fontSize,
+            plan,
+            labelHits,
+            supportHits,
+            branchHits,
+            nodeHits,
+            leaderTextHits,
+            physicalCollisionCount,
+            collisionCount: physicalCollisionCount,
+            score,
+          });
+      }
+    }
+    const chosen = candidates.sort((a, b) => a.score - b.score || b.fontSize - a.fontSize)[0];
+    if (!chosen) {
+      unplacedCount += 1;
+      continue;
+    }
+    residualCollisions += chosen.physicalCollisionCount;
+    const hasLeaderWarning = $("leader-lines").checked && (chosen.plan.obstacleHits
+      || chosen.plan.leaderHits || chosen.plan.nodeHits || chosen.plan.anglePenalty > 0);
+    if (hasLeaderWarning) leaderWarnings += 1;
+    placed.push({ ...entry, ...chosen });
+    if ($("leader-lines").checked && chosen.plan.points) {
+      const [origin, target] = chosen.plan.points;
+      leaderSegments.push({
+        x1: origin.x,
+        y1: origin.y,
+        x2: target.x,
+        y2: target.y,
+        labelId: chosen.layoutNode.id,
+      });
+    }
+  }
+  return {
+    placed,
+    residualCollisions,
+    leaderWarnings,
+    unplacedCount,
+    evaluatedCandidateCount,
+    maximumLeaderLength: Math.max(0, ...placed.map(item => item.plan?.length || 0)),
+  };
+}
