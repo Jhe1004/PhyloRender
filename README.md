@@ -2,11 +2,11 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-**A human- and agent-accessible platform for reproducible phylogenetic visualization**
+**Solving the "last-mile" bottleneck of publication-ready phylogenetic visualization — for both human researchers and AI agents**
 
-PhyloRender is an open-source phylogenetic visualization platform that unifies an interactive browser-based **Web Workbench**, a deterministic **Model Context Protocol (MCP) Server**, and a ready-to-install **Agent Skill** on top of a **single shared rendering engine**.
+Existing phylogenetic plotting tools—whether GUI viewers (e.g., FigTree, iTOL) or scripting libraries (e.g., `ggtree`, `ape`, `ETE3`)—can generate a draft tree in seconds, yet raw outputs routinely suffer from **crowded, overlapping node support values, node ages, branch segments, and clade annotations**, especially across short internal branches and rapid radiations. This creates a notorious **"last-mile" problem**: researchers must repeatedly export trees into Adobe Illustrator, CorelDRAW, or Inkscape to manually drag support numerals into open spaces, draw leader lines, straighten nested brackets, and tidy typography—tedious work that must be redone from scratch whenever taxa change, a tree is re-estimated, or reviewers request revisions.
 
-Traditional phylogenetic plotting forces researchers to choose between manual GUI tweaking (hard to reproduce) and brittle plotting scripts (hard to prevent overlapping node supports, misaligned multi-tier brackets, or distorted short branches). PhyloRender eliminates this trade-off: humans can style trees interactively in the browser, AI agents can build and revise figures semantically over MCP using raw taxon identities and MRCA clades, and both sides exchange lossless `spec.json` configurations backed by immutable revision histories—producing publication-ready vector SVGs and high-DPI PNGs with zero manual vector-editor cleanup.
+**PhyloRender automates this last mile.** Built on a **single shared deterministic, collision-free layout engine**, it unifies an interactive browser-based **Web Workbench**, a **Model Context Protocol (MCP) Server**, and a ready-to-install **Agent Skill**. Both humans and AI agents operate on the exact same engine, exchanging lossless `spec.json` configurations and immutable revisions to go straight from Newick/Nexus tree files to submission-ready vector SVGs and high-DPI PNGs—**without tedious manual post-editing in external vector editors**.
 
 > **Full Documentation**: [English User Guide](docs/USER_GUIDE.md) · [中文详尽使用文档](docs/USER_GUIDE.zh-CN.md) · [MCP Server Guide (EN)](mcp-server/README.md) · [MCP 服务手册 (中文)](mcp-server/README.zh-CN.md) · [Agent Skill Guide (EN)](skills/phylorender-mcp/README.md) · [Agent Skill 使用指南 (中文)](skills/phylorender-mcp/README.zh-CN.md)
 

@@ -2,11 +2,11 @@
 
 [English](README.md) | **简体中文**
 
-**面向人类研究者与 AI Agent 的可复现系统发育可视化平台**
+**彻底解决系统发育树出版绘图的“最后一公里”——面向人类研究者与 AI Agent 的零碰撞可视化平台**
 
-PhyloRender 是一套开源的系统发育树出版级绘图平台，在**同一套确定性科学模型与排版渲染引擎**之上，同时提供交互式 **Web 工作台**、标准 **Model Context Protocol（MCP）服务** 以及开箱即用的 **Agent Skill**。
+在日常系统发育研究中，几乎所有现有绘图工具（无论是 FigTree、iTOL 等图形界面软件，还是 `ggtree`、`ape`、`ETE3` 等绘图脚本）都能在几秒内生成草图，但直接导出的树图往往面临一个令人头疼的共性痛点：**在短枝密集处和快速辐射类群中，节点支持率、节点年龄、树枝与分类标注经常严重堆叠、重叠在一起**。这就带来了极其耗时的**“最后一公里”问题**——研究者几乎每次都不得不把导出的矢量图拖进 Adobe Illustrator、CorelDRAW 或 Inkscape 等绘图软件，逐个节点手动拖拽支持率数字、拉引导线、对齐多层分组括号、调整字号与版面；不仅费时费力、极易出错，而且只要增删样品、重新建树或审稿人要求修改，所有手工排版就只能全部推倒重来。
 
-在传统的系统发育绘图中，研究者往往面临两难：使用图形界面工具（如 FigTree、iTOL）手动微调难以复现；编写 R/Python 脚本（如 `ggtree`、`ape`、`ETE3`）又常遭遇短枝密集处的节点支持率重叠、多层分类括号错位或拉扯变形。PhyloRender 彻底打通了人机协作链路：研究者可以在网页端实时交互调优，AI Agent 可以通过 MCP 按原始样品身份与 MRCA 语义精确建图和迭代修订，两者之间通过不可变版本历史与 `spec.json` 配置文件无损流转——直接产出无需 Illustrator / Inkscape 手工修图的出版级矢量 SVG 与高分辨率 PNG。
+**PhyloRender 正是为彻底消灭这“最后一公里”的手工修图而生。** 它在**同一套确定性零碰撞排版与科学渲染引擎**之上，同时提供交互式 **Web 工作台**、标准 **Model Context Protocol（MCP）服务** 以及开箱即用的 **Agent Skill**。无论是研究者在网页端交互调整，还是 AI 助手通过 MCP 按原始样品身份与 MRCA 语义自动建图和修订，都共享完全相同的底层算法与可复现 `spec.json` 配置——直接从 Newick/Nexus 树文件一步产出**无需进外部矢量软件手工挪字的出版级 SVG 与高分辨率 PNG**。
 
 > **完整文档导航**：[中文详尽使用文档](docs/USER_GUIDE.zh-CN.md) · [English User Guide](docs/USER_GUIDE.md) · [MCP 服务手册 (中文)](mcp-server/README.zh-CN.md) · [MCP Server Guide (EN)](mcp-server/README.md) · [Agent Skill 使用指南 (中文)](skills/phylorender-mcp/README.zh-CN.md) · [Agent Skill Guide (EN)](skills/phylorender-mcp/README.md)
 

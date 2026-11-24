@@ -2,7 +2,9 @@
 
 **English** | [简体中文](USER_GUIDE.zh-CN.md)
 
-This guide provides a complete walkthrough of **PhyloRender (v0.8.0)**: its architecture, four visualization workspaces, scientific invariants, Web Workbench workflow, MCP Server integration, and **Agent Skill** setup and usage.
+This guide provides a complete walkthrough of **PhyloRender (v0.8.0)**: why it was built to eliminate the "last-mile" manual label-cleanup problem in phylogenetic plotting, its unified architecture, four visualization workspaces, scientific invariants, Web Workbench workflow, MCP Server integration, and **Agent Skill** setup and usage.
+
+> **Why PhyloRender?** Most phylogenetic tools produce draft trees whose node supports, ages, and annotations collide heavily on short branches, forcing researchers into hours of repetitive, non-reproducible manual dragging inside Illustrator, CorelDRAW, or Inkscape. PhyloRender automates that entire last mile—using deterministic multi-directional label placement, `45°` bridged dashed leader lines, `2.5×` bold full-support branches, strict collinear multi-tier clade brackets, and adaptive timescale fitting—so every tree update regenerates a clean, publication-ready figure in seconds.
 
 ---
 
