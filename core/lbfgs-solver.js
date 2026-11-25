@@ -31,9 +31,9 @@
     let f = evaluate(x, g);
     if (!n || !Number.isFinite(f)) return { x, f, iterations: 0, converged: n === 0 };
 
-    const m = options.memory ?? 12;
-    const maxIter = options.maxIterations ?? 600;
-    const gtol = options.gtol ?? 1e-10;
+    const m = options.memory ?? 16;
+    const maxIter = options.maxIterations ?? 1000;
+    const gtol = options.gtol ?? 1e-11;
     const ftol = options.ftol ?? 1e-15;
     const sList = [], yList = [], rhoList = [];
     const alphaBuf = new Float64Array(m);
