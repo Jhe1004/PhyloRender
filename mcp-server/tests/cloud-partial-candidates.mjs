@@ -30,7 +30,7 @@ try{
     const old=globalThis.PhyloRenderLocalCloudExample;
     try{globalThis.PhyloRenderLocalCloudExample={phyPartsMeta:{algorithm:'phylorender-conflict-statistics-v1'}};
       await loadDefaultCloudWorkspace();}finally{globalThis.PhyloRenderLocalCloudExample=old;}
-  }),/版本已过期/);
+  }),/outdated|版本已过期/i);
   assert.equal(await emptyState(),empty);
   await page.evaluate(()=>{
     const original=PhyloRenderInputTasks;globalThis.testScienceCalls=[];
@@ -55,7 +55,7 @@ try{
   const fingerprint=()=>page.evaluate(()=>JSON.stringify({species:state.cloud.speciesRoot,genes:state.cloud.geneRoots,
     ages:[...state.cloud.datedAges].map(([r,a])=>[r,[...a]]),table:state.cloud.phyPartsText,calls:testScienceCalls}));
   const before=await fingerprint();assert.equal(await page.locator('#cloud-pie-mode').inputValue(),'two');
-  await page.getByRole('button',{name:'标注',exact:true}).click();
+  await page.locator('[data-settings-target="labels"]').click();
   await page.locator('#cloud-pie-settings-section').evaluate(el=>el.open=true);
   await page.locator('#cloud-pie-mode').selectOption('four');await settleFigure(page);
   assert.equal(await fingerprint(),before,'display switch must preserve science and not start a Worker');

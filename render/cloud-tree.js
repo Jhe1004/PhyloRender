@@ -41,7 +41,7 @@
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svg.dataset.phylorenderRenderer = cloud.importedDating ? "cloud-imported-dated"
     : cloud.datingEngine === "relative-display"
-    ? "cloud-relative-display" : "cloud-bundled-treepl";
+    ? "cloud-relative-display" : cloud.datingEngine === "bundled-treePL" ? "cloud-bundled-treepl" : "cloud-pl-aligned";
   publishSize({ width, height });
   if (!species) {
     svg.append(svgEl("text", { x: width / 2, y: 275, "text-anchor": "middle", fill: "#34414b", "font-family": fontFamily, "font-size": 26 }, "Gene-tree and species-tree discordance"));
@@ -91,7 +91,7 @@
       "data-configured-opacity": Number((Number.isFinite(Number(options.opacity)) ? Number(options.opacity) : .18).toFixed(6)) });
     for (const [index, root] of cloud.geneRoots.entries()) {
       const ages = cloud.datedAges.get(root);
-      if (!ages || (cloud.geneDatingEngine || cloud.datingEngine) !== "bundled-treePL") throw new Error("Gene trees lacking treePL display-alignment ages were encountered; rendering aborted");
+      if (!ages || !["PhyloRender-pl-aligner", "bundled-treePL"].includes(cloud.geneDatingEngine || cloud.datingEngine)) throw new Error("Gene trees lacking penalized-likelihood display-alignment ages were encountered; rendering aborted");
       yield { phase: "layout", current: index + 1, total: cloud.geneRoots.length };
       const anchors = yield* model.sharedRowAnchorsSteps(root, sharedRows);
       const ys = yield* yFor(root, anchors);

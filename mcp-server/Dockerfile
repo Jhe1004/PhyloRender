@@ -46,25 +46,9 @@ COPY ui ./ui
 COPY evaluation ./evaluation
 COPY tests ./tests
 COPY mcp-server ./mcp-server
-COPY 23_treePL集成_20260928/05_软件内置组件/02_许可证与源码 /app/vendor/treepl
 
-# The conflict-statistics engine is JavaScript and ships with PhyloRender.
-# Native build packages below are only for the separately attributed treePL.
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential autoconf automake libtool libnlopt-cxx-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-RUN echo 'd31d23a66ed7b34b2076ac62e7ed0fb75aaaf2f903bee58d56cd6dad6bb39e31  /app/vendor/treepl/treePL-upstream-source.tar.gz' | sha256sum -c - \
-    && mkdir /tmp/treepl-build \
-    && tar -xzf /app/vendor/treepl/treePL-upstream-source.tar.gz -C /tmp/treepl-build \
-    && cd /tmp/treepl-build/treePL/deps && tar -xzf ADOL-C-2.6.3.tgz \
-    && cd ADOL-C-2.6.3 && ./configure --with-openmp-flag=-fopenmp --prefix=/usr/local \
-    && make -j2 && make install && ldconfig \
-    && cd /tmp/treepl-build/treePL/src && ./configure LDFLAGS=-L/usr/local/lib \
-    && make -j2 LDFLAGS='-L/usr/local/lib -I/usr/local/include' \
-    && install -m 755 treePL /usr/local/bin/treePL \
-    && rm -rf /tmp/treepl-build
-
-RUN ldconfig /usr/local/lib64
+# Both gene-tree conflict statistics and penalized-likelihood display alignment
+# run inside PhyloRender's independent JavaScript modules without C++ compilation.
 COPY .gitignore .dockerignore ./
 COPY deploy ./deploy
 RUN mkdir -p /data/figures && chown -R pwuser:pwuser /data/figures

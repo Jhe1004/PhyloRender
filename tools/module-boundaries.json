@@ -20,6 +20,8 @@
     {"path": "core/support-scale.js", "global": "PhyloRenderSupportScale", "kind": "model", "max_lines": 100},
     {"path": "core/cloud-jitter.js", "global": "PhyloRenderCloudJitter", "kind": "model", "max_lines": 100},
     {"path": "core/phyparts-engine.js", "global": "PhyloRenderPhyParts", "kind": "model", "max_lines": 260},
+    {"path": "core/lbfgs-solver.js", "global": "PhyloRenderLBFGS", "kind": "model", "max_lines": 135},
+    {"path": "core/pl-aligner.js", "global": "PhyloRenderPLAligner", "kind": "model", "max_lines": 260},
     {"path": "core/tree-panels.js", "global": "PhyloRenderTreePanels", "kind": "model", "max_lines": 80},
     {"path": "core/tree-panel-clades.js", "global": "PhyloRenderTreePanelClades", "kind": "model", "max_lines": 90},
     {"path": "core/cloud-group-colors.js", "global": "PhyloRenderCloudGroupColors", "kind": "model", "max_lines": 90},

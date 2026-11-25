@@ -36,11 +36,16 @@ Linux dependencies also need their exact package versions and source/notice
 records in the release evidence. This macOS audit does not certify a newly
 built Linux image.
 
-The current repository does not contain upstream PhyParts source or binaries.
-`core/phyparts-engine.js` is an independent implementation. Its rooted
+The current repository does not contain upstream PhyParts or treePL runtime code in its active cloudogram pipeline.
+`core/phyparts-engine.js` is an independent JavaScript implementation whose rooted
 bipartition method is attributed to Smith et al. (2015),
-<https://doi.org/10.1186/s12862-015-0423-0>. treePL's method is attributed to Smith
-and O'Meara (2012), <https://doi.org/10.1093/bioinformatics/bts492>.
+<https://doi.org/10.1186/s12862-015-0423-0>. `core/pl-aligner.js` (with `core/lbfgs-solver.js`)
+is an independent JavaScript penalized-likelihood display-alignment implementation whose
+rate-smoothing method is attributed to Sanderson (2002),
+<https://doi.org/10.1093/oxfordjournals.molbev.a003974>, and Smith and O'Meara (2012),
+<https://doi.org/10.1093/bioinformatics/bts492>. Any retained local native `treePL`
+artifacts are used solely as optional offline oracle references during verification and are
+not required at runtime or in the container image.
 
 ## Research examples and user files
 

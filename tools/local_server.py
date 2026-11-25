@@ -21,6 +21,7 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 import phyparts_runtime
+import pl_align_runtime
 from process_supervisor import run_managed, run_captured, ComputationCancelled, shutdown as shutdown_native
 from native_jobs import NativeJobs
 from http_security import request_allowed, static_allowed, LOOPBACK
@@ -63,97 +64,30 @@ def bundled_treepl() -> Path | None:
 
 
 def run_cloud_dating(payload: object, progress=lambda _: None, cancel_event=None) -> dict[str, object]:
-    """Construct a constrained display alignment, not independent gene dating."""
-    binary = bundled_treepl()
-    if binary is None:
-        raise FileNotFoundError("Bundled treePL binary is unavailable on this platform; schematic coordinates cannot substitute for ultrametric alignment")
-    if not isinstance(payload, dict):
-        raise ValueError("Missing cloudogram display-alignment parameters")
-    if payload.get("analysis_kind", "display_alignment") != "display_alignment":
-        raise ValueError("This endpoint supports display_alignment only; it cannot perform de novo divergence-time inference")
-    deadline = time.monotonic() + 300
-    age = payload.get("age")
-    if not isinstance(age, (float, int)) or isinstance(age, bool) or not 0 < age <= 1_000_000:
-        raise ValueError("Fixed root age must be > 0 and <= 1,000,000")
-    trees = payload.get("trees")
-    if not isinstance(trees, list) or not 1 <= len(trees) <= 100:
-        raise ValueError("Between 1 and 100 trees are supported per batch")
-    output: list[str] = []
-    for index, item in enumerate(trees):
-        if cancel_event is not None and cancel_event.is_set():
-            raise ComputationCancelled()
-        progress(f"Running treePL display alignment: tree {index + 1} / {len(trees)}")
-        if not isinstance(item, dict):
-            raise ValueError(f"Malformed payload for tree #{index + 1}")
-        newick = item.get("newick")
-        root_tips = item.get("rootTips")
-        if not isinstance(newick, str) or not 10 <= len(newick) <= 200_000 or not TREEPL_NEWICK_CHARS.fullmatch(newick) or not newick.endswith(";"):
-            raise ValueError(f"Tree #{index + 1} contains unsupported characters or invalid size for treePL")
-        ids = TREEPL_TIP_ID.findall(newick)
-        if len(ids) < 2 or len(ids) != len(set(ids)):
-            raise ValueError(f"Tree #{index + 1} has missing or duplicate taxon tokens")
-        if not isinstance(root_tips, list) or len(root_tips) != 2 or any(not isinstance(tip, str) or tip not in ids for tip in root_tips) or root_tips[0] == root_tips[1]:
-            raise ValueError(f"Tree #{index + 1} has invalid root-calibration taxa")
-        calibrations = item.get("calibrations", [])
-        if not isinstance(calibrations, list) or len(calibrations) > len(ids) - 2:
-            raise ValueError(f"Tree #{index + 1} has an invalid number of shared-clade calibrations")
-        calibration_lines = []
-        seen_pairs = set()
-        for cal_index, calibration in enumerate(calibrations):
-            if not isinstance(calibration, dict):
-                raise ValueError(f"Tree #{index + 1} has a malformed shared-clade calibration")
-            tips = calibration.get("tips")
-            fixed_age = calibration.get("age")
-            if (not isinstance(tips, list) or len(tips) != 2 or
-                any(not isinstance(tip, str) or tip not in ids for tip in tips) or
-                tips[0] == tips[1] or not isinstance(fixed_age, (float, int)) or
-                isinstance(fixed_age, bool) or not 0 < fixed_age < age or
-                tuple(sorted(tips)) in seen_pairs):
-                raise ValueError(f"Tree #{index + 1} has an invalid shared-clade calibration #{cal_index + 1}")
-            seen_pairs.add(tuple(sorted(tips)))
-            label = f"shared{cal_index + 1}"
-            calibration_lines.append(f"mrca = {label} {tips[0]} {tips[1]}\nmin = {label} {fixed_age:.12g}\nmax = {label} {fixed_age:.12g}\n")
-        with tempfile.TemporaryDirectory(prefix="phylorender-treepl-") as directory:
-            work = Path(directory)
-            (work / "input.tree").write_text(newick + "\n", encoding="ascii")
-            (work / "run.config").write_text(
-                "treefile = input.tree\n"
-                "outfile = dated.tree\n"
-                "numsites = 100000000\n"
-                "smooth = 100\n"
-                "seed = 1\n"
-                f"mrca = root {root_tips[0]} {root_tips[1]}\n"
-                f"min = root {age}\nmax = root {age}\n" + "".join(calibration_lines),
-                encoding="ascii",
-            )
-            try:
-                remaining = deadline - time.monotonic()
-                if remaining <= 0:
-                    raise subprocess.TimeoutExpired("treePL batch", 300)
-                with (work / "engine.log").open("w") as log:
-                    process = run_managed([str(binary), "run.config"], work, log,
-                                          cancel_event=cancel_event, timeout=min(30, remaining))
-            except subprocess.TimeoutExpired as error:
-                raise subprocess.TimeoutExpired(f"treePL tree {index + 1}", min(30, remaining)) from error
-            dated_file = work / "dated.tree"
-            dated = dated_file.read_text(encoding="ascii").strip() if dated_file.is_file() else ""
-            if process.returncode != 0 or not dated.endswith(";"):
-                detail = (work / "engine.log").read_text(errors="replace").strip()[-500:]
-                raise RuntimeError(f"treePL display alignment failed on tree #{index + 1}: {detail or 'no output produced'}")
-            if set(TREEPL_TIP_ID.findall(dated)) != set(ids):
-                raise RuntimeError(f"treePL output taxon set does not match input on tree #{index + 1}")
-            output.append(dated)
+    """Construct a constrained display alignment using the built-in JS engine."""
+    clean = pl_align_runtime.validate_payload(payload)
+    node_bin = shutil.which("node")
+    if not node_bin or not pl_align_runtime.CLI.is_file() or not pl_align_runtime.CORE.is_file():
+        raise FileNotFoundError("Node.js or built-in penalized-likelihood display aligner is unavailable")
     if cancel_event is not None and cancel_event.is_set():
         raise ComputationCancelled()
-    return {"engine": "bundled-treePL", "ageUnit": "arbitrary-calibrated-unit",
-            "analysis_kind": "display_alignment", "independently_estimated_gene_times": False,
-            "numsites": 100000000, "numsites_is_synthetic": True, "smooth": 100, "seed": 1,
-            "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
-            "constraints": [{"root_age": age, "root_tips": item["rootTips"],
-                             "shared_clades": item.get("calibrations", [])} for item in trees],
-            "warnings": ["Fixed shared-clade ages align displays; they do not estimate gene coalescence times.",
-                         "Synthetic numsites and fixed smoothing are display parameters, not sequence-derived inference."],
-            "datedTrees": output}
+    progress(f"Running penalized-likelihood display alignment across {len(clean['trees'])} tree(s)...")
+    with tempfile.TemporaryDirectory(prefix="phylorender-pl-align-") as directory:
+        work = Path(directory)
+        source, output = work / "input.json", work / "result.json"
+        source.write_text(json.dumps(clean, ensure_ascii=False), encoding="utf-8")
+        with (work / "engine.log").open("w", encoding="utf-8") as log:
+            process = run_managed([node_bin, str(pl_align_runtime.CLI), str(source), str(output)],
+                                  work, log, cancel_event=cancel_event, timeout=300)
+        if process.returncode != 0 or not output.is_file():
+            detail = (work / "engine.log").read_text(errors="replace").strip()[-500:]
+            raise RuntimeError(f"Penalized-likelihood display alignment failed: {detail or 'no output produced'}")
+        result = json.loads(output.read_text(encoding="utf-8"))
+    if cancel_event is not None and cancel_event.is_set():
+        raise ComputationCancelled()
+    if result.get("engine") != pl_align_runtime.ENGINE or result.get("algorithm") != pl_align_runtime.ALGORITHM:
+        raise RuntimeError("Penalized-likelihood display-alignment engine version mismatch")
+    return result
 
 
 def bundled_gnfinder_candidates() -> list[Path]:
@@ -468,8 +402,9 @@ class PhyloRenderHandler(SimpleHTTPRequestHandler):
                                  "algorithm": phyparts_runtime.ALGORITHM})
             return
         if urlparse(self.path).path == "/api/cloud-date/status":
-            binary = bundled_treepl()
-            self.send_json(200, {"available": bool(binary), "engine": "bundled-treePL" if binary else None,
+            ready = pl_align_runtime.runtime_ready()
+            self.send_json(200, {"available": ready, "engine": pl_align_runtime.ENGINE if ready else None,
+                                 "algorithm": pl_align_runtime.ALGORITHM,
                                  "platform": f"{platform.system()}-{platform.machine()}"})
             return
         if urlparse(self.path).path == "/api/taxon-names/status":

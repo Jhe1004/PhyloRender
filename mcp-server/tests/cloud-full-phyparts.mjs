@@ -83,7 +83,7 @@ try {
   if(hasDefault) {
     assert.equal(await page.evaluate(()=>state.cloud.phyPartsTable.detailed),true,'default must keep full detail');
     const before = await fingerprint(), count = requests.length;
-    await page.getByRole('button',{name:'标注',exact:true}).click();
+    await page.locator('[data-settings-target="labels"]').click();
     await page.locator('#cloud-pie-settings-section').evaluate(el=>el.open=true);
     for(const mode of ['four','two','four']) {
       await page.locator('#cloud-pie-mode').selectOption(mode);
@@ -120,19 +120,19 @@ try {
   assert.equal(await page.locator('#cloud-pie-mode').inputValue(),'two');
   assert.equal(await page.evaluate(()=>state.cloud.phyPartsMeta.mode),'four');
   const before = await fingerprint(), count = requests.length;
-  await page.getByRole('button',{name:'标注',exact:true}).click();
+  await page.locator('[data-settings-target="labels"]').click();
   await page.locator('#cloud-pie-settings-section').evaluate(el=>el.open=true);
   await page.locator('#cloud-pie-mode').selectOption('four');
   await settleFigure(page);
   assert.equal(await fingerprint(),before);
   assert.equal(requests.length,count);
-  assert.match(await page.locator('#cloud-pie-composition-status').textContent(),/只改变显示/);
+  assert.match(await page.locator('#cloud-pie-composition-status').textContent(),/without recalculating|display|只改变显示/i);
   // Old manual tables remain supported, with an explicit reason, no fake detail.
   await page.locator('#cloud-phyparts-file').setInputFiles(file('old.tsv',
     'Node_ID\tconcordant_N\tconflict_total_N\tno_signal_N\tdescendant_samples\nN1\t1\t1\t1\tA;B\n'));
   await settleFigure(page);
   assert.equal(await page.locator('#cloud-pie-mode option[value="four"]').isDisabled(),true);
-  assert.match(await page.locator('#cloud-pie-composition-status').textContent(),/旧统计表缺少/);
+  assert.match(await page.locator('#cloud-pie-composition-status').textContent(),/legacy table lacks|two-part pies only|旧统计表缺少/i);
   assert.deepEqual(errors,[]);
   if(output)await writeFile(path.join(output,'05_界面验证.json'),JSON.stringify({hasDefault,errors,requests,passed:true},null,2));
   console.log('PASS complete four-category built-in counts even with two-part display, default four/two switching without analysis, old-table explanation, unchanged trees/ages/groups/statistics');

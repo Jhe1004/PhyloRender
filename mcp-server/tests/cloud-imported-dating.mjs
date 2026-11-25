@@ -21,7 +21,7 @@ try {
   });
   await page.goto(runtime.demoPageUrl);
   await page.evaluate(() => window.PhyloRenderAgent.ready());
-  await page.getByRole('button', { name: '导入', exact: true }).click();
+  await page.locator('[data-settings-target="data"]').click();
   await page.locator('#cloud-input-section > summary').click();
   await page.locator('#cloud-species-method').selectOption('dated');
   assert.equal(await page.locator('#cloud-dated-options').isVisible(), true);
@@ -92,15 +92,17 @@ try {
     ages: [...state.cloud.datedAges.get(state.cloud.speciesRoot).values()],
     count: state.cloud.geneRoots.length, engine: state.cloud.datingEngine,
     geneEngine: state.cloud.geneDatingEngine, analysis: state.cloud.phyPartsMeta?.engine,
+    runs: state.cloud.treePLRuns,
     message: document.getElementById('message').textContent }));
   assert.equal(after.count, 2, JSON.stringify(after));
-  assert.equal(after.engine, 'imported-dated'); assert.equal(after.geneEngine, 'bundled-treePL');
+  assert.equal(after.engine, 'imported-dated'); assert.equal(after.geneEngine, 'PhyloRender-pl-aligner');
   assert.equal(after.analysis, 'PhyloRender-conflict-statistics');
   assert.equal(after.root, before.root); assert.deepEqual(after.ages, before.ages);
-  assert.equal(dateRequests.length, 1, 'only the gene batch is dated');
-  assert.equal(dateRequests[0].trees.length, 2); assert.equal(dateRequests[0].age, 73.5);
-  assert.deepEqual(dateRequests[0].trees[0].calibrations.map(item => item.age).sort((a,b) => a-b), [12,21,44]);
-  assert.deepEqual(dateRequests[0].trees[1].calibrations.map(item => item.age), [44]);
+  assert.equal(dateRequests.length, 0, 'built-in Worker alignment requires zero backend HTTP requests');
+  assert.equal(after.runs.length, 1, 'only the gene batch is dated');
+  assert.equal(after.runs[0].tree_count, 2); assert.equal(after.runs[0].constraints[0].root_age, 73.5);
+  assert.deepEqual(after.runs[0].constraints[0].shared_clades.map(item => item.age).sort((a,b) => a-b), [12,21,44]);
+  assert.deepEqual(after.runs[0].constraints[1].shared_clades.map(item => item.age), [44]);
   await page.evaluate(() => state.cloud.geneRoots.forEach(root =>
     PhyloRenderCloud.verifySharedAges(root, state.cloud.datedAges.get(root),
       PhyloRenderCloud.sharedAgeCalibrations(state.cloud.speciesRoot,
@@ -112,12 +114,12 @@ try {
     input.dispatchEvent(new Event('change', { bubbles: true }));
   });
   assert.equal(await page.locator('#cloud-root-age').inputValue(), '73.5');
-  assert.equal(dateRequests.length, 1);
+  assert.equal(dateRequests.length, 0);
   const svg = await page.evaluate(() => serializeRenderedSvg());
   assert.match(svg, /cloud-imported-dated/); assert.match(svg, /cloud-dating-provenance/);
   const meta = await page.evaluate(() => JSON.parse(document.getElementById('cloud-dating-provenance').textContent));
   assert.equal(meta.species.mode, 'imported-dated'); assert.equal(meta.species.unit, 'mya');
-  assert.equal(meta.genes.engine, 'bundled-treePL'); assert.equal(meta.fossilCalibrated, null);
+  assert.equal(meta.genes.engine, 'PhyloRender-pl-aligner'); assert.equal(meta.fossilCalibrated, null);
   if (output) {
     await mkdir(output, { recursive: true });
     await writeFile(`${output}/03_已有定年与真实基因treePL云树.svg`, svg);
@@ -137,14 +139,15 @@ try {
   await page.locator('#cloud-species-file').setInputFiles(file('dated_years.tree', large));
   await page.locator('#tree-loading').waitFor({ state: 'hidden', timeout: 120000 });
   await settleFigure(page);
-  assert.equal(dateRequests.length, 1);
+  assert.equal(dateRequests.length, 0);
   assert.equal(await page.evaluate(() => state.cloud.datedRootAge), 73500000);
   await page.locator('#cloud-genes-file').setInputFiles(file('ML_genes.treefile', genes));
   await page.locator('#tree-loading').waitFor({ state: 'hidden', timeout: 180000 });
   assert.equal(await page.evaluate(() => state.cloud.geneRoots.length), 2);
-  assert.equal(dateRequests.length, 2); assert.equal(dateRequests[1].age, 10);
+  const scaledRuns = await page.evaluate(() => state.cloud.treePLRuns);
+  assert.equal(scaledRuns.length, 1); assert.equal(scaledRuns[0].constraints[0].root_age, 10);
   const scale = 10 / 73500000;
-  assert.deepEqual(dateRequests[1].trees[0].calibrations.map(item => item.age).sort((a,b) => a-b), [12e6,21e6,44e6].map(age => age * scale));
+  assert.deepEqual(scaledRuns[0].constraints[0].shared_clades.map(item => item.age).sort((a,b) => a-b), [12e6,21e6,44e6].map(age => age * scale));
   await page.evaluate(() => {
     const cloud = state.cloud;
     if (cloud.datedAges.get(cloud.speciesRoot).get(cloud.speciesRoot) !== 73500000) throw new Error('reference was scaled');

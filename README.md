@@ -24,7 +24,7 @@ Scientific research is rapidly entering the AI agent era, in which many tedious,
 | --- | --- | --- |
 | **Phylogram** | `phylogeny` | Standard phylogenies with single or multi-tree bipartition-matched node supports (e.g., ML bootstrap `%` + ASTRAL LPP / Bayesian PP), scale-aware decimal precision, `2.5×` bold full-support branches, collision-free `45°` bridged dashed leader lines, and hierarchical clade brackets. |
 | **Time Tree** | `time` | Fossil-calibrated chronograms displaying node ages, 95% HPD intervals, and official ICS (0–4567 Ma) geologic timescales with per-cell adaptive narrow-interval label fitting. Strictly preserves input root and chronology; suppresses support values. |
-| **Cloudogram & Discordance** | `cloud` | Multi-gene cloud overlays aligned to a dated species tree (`display_alignment` via managed `treePL`) paired with a built-in, Java-free 4-category rooted bipartition discordance pie engine (following Smith et al., 2015). |
+| **Cloudogram & Discordance** | `cloud` | Multi-gene cloud overlays aligned to a dated species tree (`display_alignment` via a built-in, C++-free JavaScript penalized-likelihood aligner following Sanderson, 2002 and Smith & O'Meara, 2012) paired with a built-in, Java-free 4-category rooted bipartition discordance pie engine (following Smith et al., 2015). |
 | **Tanglegram** | `conflict` | Side-by-side two-tree topological comparisons with strict 1-to-1 taxon identity matching, sister-clade untangling to minimize connector crossings, and tight leaderless support placement. |
 
 ### Core Design Highlights

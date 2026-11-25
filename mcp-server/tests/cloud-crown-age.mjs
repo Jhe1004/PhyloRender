@@ -17,17 +17,22 @@ try {
  assert.equal(await page.locator('#cloud-root-age').inputValue(),'');
  assert.equal(await page.locator('#cloud-root-age').isVisible(),true);
  const reject=()=>page.evaluate(async content=>{try{await PhyloRenderImportCloudSpecies(new File([content],'ML.treefile'));return '';}catch(e){return e.message;}},species);
- assert.match(await reject(),/冠群/); assert.equal(requests.length,0);
- await page.locator('#cloud-root-age').fill('-1');assert.match(await reject(),/大于零/);assert.equal(requests.length,0);
+ assert.match(await reject(),/crown|positive|冠群/i); assert.equal(requests.length,0);
+ await page.locator('#cloud-root-age').fill('-1');assert.match(await reject(),/positive|大于零/i);assert.equal(requests.length,0);
  await page.locator('#cloud-root-age').fill('70');await page.locator('#cloud-root-age-unit').selectOption('mya');
  if(output){await mkdir(output,{recursive:true});await page.screenshot({path:`${output}/ml-crown-age-input.png`});}
  await page.evaluate(async content=>PhyloRenderImportCloudSpecies(new File([content],'ML.treefile')),species);
- assert.equal(requests.length,1,'species tree is genuinely dated first');
+ assert.equal(requests.length,0,'built-in Worker alignment requires zero HTTP requests');
+ const speciesRuns=await page.evaluate(()=>state.cloud.treePLRuns);
+ assert.equal(speciesRuns.length,1,'species tree is genuinely dated first');
+ assert.equal(speciesRuns[0].tree_count,1);
  assert.equal(await page.evaluate(()=>state.cloud.datedRootAge),70);
  await page.evaluate(()=>{$('cloud-genes-method').value='ml';});
  await page.locator('#cloud-genes-file').setInputFiles({name:'genes.trees',mimeType:'text/plain',buffer:Buffer.from(genes)});
  await page.waitForFunction(()=>state.cloud.geneRoots.length===2&&!activeTreeLoad&&!state.cloud.phyPartsBusy,null,{timeout:180000});
- assert.equal(requests.length,2,'gene trees are dated after the species reference');
+ const geneRuns=await page.evaluate(()=>state.cloud.treePLRuns);
+ assert.equal(geneRuns.length,1,'gene trees are dated after the species reference');
+ assert.equal(geneRuns[0].tree_count,2);
  await page.evaluate(async ()=>{$('cloud-show-time-axis').checked=true;$('time-geology').value='standard';await renderCloudTree();});
  const audit=await page.evaluate(async()=>{
   const c=state.cloud,names=PhyloRenderCloud.sampleProfile(c.speciesRoot).names;
@@ -40,7 +45,7 @@ try {
  assert.equal(audit.unit,'mya');assert.deepEqual(audit.geneRoots,[70,70]);assert.equal(audit.provenance.fossilCalibrated,false);
  assert.equal(audit.configuration.options.cloud.root_age,70);assert.equal(audit.configuration.options.cloud.root_age_unit,'mya');
  const mcp=await runtime.renderer.render(audit.configuration);
- assert.equal(mcp.report.cloud.dating_engine,'bundled-treePL');assert.equal(mcp.report.cloud.time_background.sourceYears,1e6);
+ assert.equal(mcp.report.cloud.dating_engine,'PhyloRender-pl-aligner');assert.equal(mcp.report.cloud.time_background.sourceYears,1e6);
  assert.equal(mcp.report.cloud.time_background.geologyVisible,true);
  if(output){
   await writeFile(`${output}/ml-70mya-cloud.svg`,mcp.svg);
@@ -50,9 +55,8 @@ try {
  }
  await page.locator('#cloud-species-method').selectOption('dated');
  await page.locator('#cloud-dated-unit').selectOption('mya');
- const before=requests.length;
  await page.evaluate(async content=>PhyloRenderImportCloudSpecies(new File([content],'dated.tree')),dated);
- assert.equal(requests.length,before,'already dated species tree still skips treePL');
+ assert.equal(requests.length,0,'already dated species tree skips alignment');
  assert.equal(await page.evaluate(()=>state.cloud.datedRootAge),73.5);
  assert.equal(await page.locator('#cloud-root-age').isDisabled(),true);
  assert.deepEqual(errors,[]);

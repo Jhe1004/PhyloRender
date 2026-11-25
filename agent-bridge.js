@@ -1077,7 +1077,7 @@
     const collisions = Number($("collision-count").textContent) || 0;
     const cloud = state.cloud, conflict = state.conflict;
     const warnings = [];
-    if (mode === "cloud" && !cloud.importedDating) warnings.push(TIME_UNITS[cloudTimeUnit()] && cloud.datingEngine === "bundled-treePL"
+    if (mode === "cloud" && !cloud.importedDating) warnings.push(TIME_UNITS[cloudTimeUnit()] && ["PhyloRender-pl-aligner", "bundled-treePL"].includes(cloud.datingEngine)
       ? "Display alignment uses the caller-supplied root/crown age; calibration provenance was not verified, and geological colors alone do not establish absolute ages."
       : "Cloudogram horizontal axis uses relative display coordinates without fossil calibration and does not represent absolute divergence times.");
     if (mode === "cloud" && cloud.importedDating?.unit === "unconfirmed") warnings.push("Input time unit has not yet been confirmed; values must not be cited as million years ago (Mya).");

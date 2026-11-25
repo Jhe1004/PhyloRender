@@ -73,7 +73,7 @@ test('composition refuses untrusted gene ages before committing the gene layer',
   const explicitBranches={...branches.create({svgEl,model}),*alignedRowSteps() {return new Map([[root,20],[a,10],[b,30]]);}};
   const steps=renderer.create(compositionPorts({branches:explicitBranches})).renderSteps(
     compositionConfig(svg,cloud,{age:10,showGene:true,speciesShape:'triangular',pieAgeRange:{}},[a,b]));
-  assert.throws(()=>scheduler.finishRenderSteps(steps),/treePL/i);
+  assert.throws(()=>scheduler.finishRenderSteps(steps),/penalized-likelihood display-alignment/i);
   assert.ok(!svg.children.some(child=>child.attributes.class==='cloud-gene-lines'));
   assert.deepEqual(cloud,before);
 });

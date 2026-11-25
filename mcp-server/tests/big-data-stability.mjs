@@ -186,7 +186,7 @@ try{
       species_engine:state.cloud.datingEngine,gene_engine:state.cloud.geneDatingEngine}));
     assert.equal(outcome.table,statisticTable,'drawing the complete eligible cloud subset must not change PhyParts counts');
     assert.ok(outcome.cloud_trees>0);assert.equal(outcome.cloud_trees,outcome.audit.accepted);assert.ok(!outcome.dating_error);
-    assert.equal(outcome.dated_root_age,70);assert.equal(outcome.species_engine,'bundled-treePL');
+    assert.equal(outcome.dated_root_age,70);assert.equal(outcome.species_engine,'PhyloRender-pl-aligner');
     results.full_cloud={...await status(),elapsed_ms:Date.now()-cloudStart,raw_trees:outcome.audit.total,cloud_trees:outcome.cloud_trees,
       statistics_unchanged:true,dating_error:outcome.dating_error||null,species_engine:outcome.species_engine,gene_engine:outcome.gene_engine,root_age:70};
     assert.ok(results.full_cloud.maxGap<2000);assert.equal(results.full_cloud.workers,0);assert.equal(results.full_cloud.native,0);

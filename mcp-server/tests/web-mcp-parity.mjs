@@ -138,12 +138,12 @@ try {
   assert.equal(cloud.report.cloud.dating_engine,'imported-dated');
   assert.equal(cloud.report.cloud.overlay_genes,2);
   assert.equal(cloud.report.cloud.gene_audit.total,3);
-  assert.equal(cloud.report.cloud.gene_dating_engine,'bundled-treePL');
+  assert.equal(cloud.report.cloud.gene_dating_engine,'PhyloRender-pl-aligner');
   assert.equal(cloud.report.cloud.treepl_seed,1);
   assert.ok(cloud.svg.includes('Uninformative'));
   // Without a supplied node table, the MCP computes the built-in four-category statistics.
   const fresh=await mcp({workspace:'cloud',main_tree:{name:'species_ML.tre',content:tree},gene_trees:{name:'all_genes.trees',content:genes},options:{cloud:{species_method:'ml',genes_method:'ml',root_age:10,root_age_unit:'relative',pie_mode:'four'}}});
-  assert.equal(fresh.report.cloud.dating_engine,'bundled-treePL');
+  assert.equal(fresh.report.cloud.dating_engine,'PhyloRender-pl-aligner');
   assert.equal(fresh.report.cloud.overlay_genes,2);
   assert.equal(fresh.report.cloud.phyparts.geneCount,3);
   assert.ok(fresh.report.cloud.phyparts);

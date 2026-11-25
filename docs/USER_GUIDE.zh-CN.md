@@ -55,7 +55,7 @@ Web 工作台（index.html + app.js）        Agent Skill（skills/phylorender-m
 
 ### 2.3 基因树—物种树冲突云图（Cloudogram & Discordance，`workspace: "cloud"`）
 - **输入**：已定年物种树 + 批量 ML 基因树集合（Newick/Nexus）。
-- **基因树叠绘（`display_alignment`）**：仅完整样品集且 ML 枝长合格的基因树参与云层叠绘，通过受管 `treePL` 约束共有物种树节点年龄实现显示对齐（在报告中明确披露为 `display_alignment`，而非独立多物种共祖年代推断）；基因树枝线按其后代在物种树的 MRCA 继承对应分组色，共有内部节点纵向锚定到物种树坐标。
+- **内置零外部依赖惩罚似然显示对齐引擎（`core/pl-aligner.js` + `core/lbfgs-solver.js`）**：基于 Sanderson (2002) 与 Smith & O'Meara (2012) 的泊松惩罚似然速率平滑方程独立用纯 JavaScript 实现，**跨平台无需安装或编译 C++ `treePL`、ADOL-C、NLopt 或 OpenMP**。仅完整样品集且 ML 枝长合格的基因树参与云层叠绘，约束共有物种树节点年龄实现超度量显示对齐（在报告中明确披露为 `display_alignment`，而非独立多物种共祖年代推断）；基因树枝线按其后代在物种树的 MRCA 继承对应分组色，共有内部节点纵向锚定到物种树坐标。
 - **内置无 Java 冲突统计引擎（`core/phyparts-engine.js`）**：基于 Smith et al. (2015) 的有根二分方法独立用纯 JavaScript 实现，**无需安装 Java 或上游 PhyParts**。完整统计所有可比较基因树（含部分缺失样品的基因树），始终计算全部四类比例（一致 / 主冲突 / 其余冲突 / 无信息），切换两类/四类显示或隐藏个别饼图绝不改变统计分母。
 
 ### 2.4 双树冲突对照图（Tanglegram，`workspace: "conflict"`）

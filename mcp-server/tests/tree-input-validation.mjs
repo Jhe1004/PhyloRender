@@ -27,7 +27,7 @@ try {
   const bad = '((A:1):2,B:3);';
   await page.locator('#tree-file').setInputFiles({ name: 'bad-unary.nwk', mimeType: 'text/plain', buffer: Buffer.from(bad) });
   await page.waitForFunction(() => $('tree-loading').dataset.state === 'error');
-  assert.match(await page.locator('#tree-loading-detail').textContent(), /TREE_SINGLE_CHILD_NODE.*相关样品：A/);
+  assert.match(await page.locator('#tree-loading-detail').textContent(), /TREE_SINGLE_CHILD_NODE.*(?:A)/);
   assert.equal(await page.locator('#tree-loading').isVisible(), true);
   const after = await page.evaluate(() => ({ source: state.sourceName, raw: $('newick-input').value,
     tips: PhyloRenderConflict.tipNodes(state.root).length }));
@@ -58,7 +58,7 @@ try {
   });
   assert.equal(batch.stopped, true);
   assert.equal(batch.busy, false);
-  assert.match(batch.message, /第 2 棵基因树.*TREE_SINGLE_CHILD_NODE.*部分基因树/);
+  assert.match(batch.message, /Gene tree #2.*TREE_SINGLE_CHILD_NODE.*without partial/i);
   assert.deepEqual(errors, []);
   const report = { guiErrorVisible: true, previousFigurePreserved: true, mcpInspectRejected: true,
     mcpRenderRejected: true, validRootAccepted: true, defaultFakeLabelRemoved: true,

@@ -11,7 +11,7 @@
     "phyparts_outgroups", "phyparts_threshold", "phyparts_field", "phyparts_scale"]);
   function identity(spec, cloud) {
     return JSON.stringify({
-      version: 5, // Invalidates the v1 greedy grouping of partial-taxon conflicts.
+      version: 6, // Invalidates cached bundled-treePL alignments in favor of PhyloRender-pl-aligner.
       species: spec.main_tree?.content || "",
       genes: spec.gene_trees?.content || "",
       counts: spec.phyparts_table?.content || "",

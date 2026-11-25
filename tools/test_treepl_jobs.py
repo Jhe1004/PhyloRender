@@ -1,7 +1,6 @@
-"""Exercise HTTP dating job cancellation with a real slow child, no shared service."""
+"""Exercise HTTP dating job execution and cancellation with no C++ dependency."""
 import io
 import json
-from pathlib import Path
 import sys
 import threading
 import time
@@ -27,12 +26,12 @@ class DatingJobTests(unittest.TestCase):
         jobs = NativeJobs(lease_seconds=lease or 30, deadline_seconds=deadline or 300)
         began = threading.Event()
         def slow(command, work, log, **kwargs):
-            # Verify the real dating code uses the managed API and passes cancel.
-            self.assertEqual(command[1], 'run.config')
+            # Verify the real dating code uses the managed API with pl_align_cli.cjs and passes cancel.
+            self.assertEqual(command[1], str(server.pl_align_runtime.CLI))
             self.assertIsNotNone(kwargs['cancel_event'])
             began.set()
             return run_managed([sys.executable, '-c', 'import time;time.sleep(60)'],work,log,**kwargs)
-        with patch.object(server, 'DATING_JOBS', jobs), patch.object(server,'bundled_treepl',return_value=Path(sys.executable)), patch.object(server,'run_managed',side_effect=slow):
+        with patch.object(server, 'DATING_JOBS', jobs), patch.object(server,'run_managed',side_effect=slow):
             code, response = self.request('/api/cloud-date/jobs', {'age':70,'trees':[{'newick':'(T00000:1,(T00001:1,T00002:1):1);','rootTips':['T00000','T00001']}]})
             self.assertEqual(code,202)
             token=response['job']
@@ -62,6 +61,15 @@ class DatingJobTests(unittest.TestCase):
 
     def test_crashed_client_lease_reaps_dating_process(self):
         self.exercise(lease=.1)
+
+    def test_sync_cloud_date_runs_builtin_js_aligner(self):
+        code, response = self.request('/api/cloud-date', {
+            'age': 70,
+            'trees': [{'newick': '(T00000:0.2,(T00001:0.1,T00002:0.12):0.08);', 'rootTips': ['T00000', 'T00001']}],
+        })
+        self.assertEqual(code, 200)
+        self.assertEqual(response['engine'], 'PhyloRender-pl-aligner')
+        self.assertEqual(len(response['datedTrees']), 1)
 
 
 if __name__=='__main__':

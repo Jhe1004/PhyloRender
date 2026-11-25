@@ -3428,13 +3428,14 @@ async function dateCloudTrees(roots, rootAge, existingSpeciesAges = null) {
   // ages, stored species nodes and exported units never change (e.g. yr vs Ma).
   const numericalScale = cloudTreePLNumericalScale(rootAge);
   async function runBatch(trees) {
-    const result = await PhyloRenderNativeClient.run("treepl", {
+    const result = await PhyloRenderInputTasks.run("pl-align", {
       analysis_kind: "display_alignment", age: rootAge * numericalScale,
       trees: trees.map(tree => ({ ...tree,
         calibrations: tree.calibrations?.map(item => ({ ...item, age: item.age * numericalScale })) })),
-    }, { signal: currentScienceSignal(), onProgress: message => { $("tree-loading-detail").textContent = message; } });
-    if (result.engine !== "bundled-treePL" || result.datedTrees?.length !== trees.length) throw new Error("Incomplete output returned by the bundled treePL service");
-    if (result.seed !== 1) throw new Error("Bundled treePL service did not apply deterministic seed = 1; restart the local backend service");
+    }, { signal: currentScienceSignal(), timeoutMs: 300000, onProgress: update => { $("tree-loading-detail").textContent = update?.message || String(update); } });
+    if (result?.engine !== "PhyloRender-pl-aligner" || result.algorithm !== PhyloRenderPLAligner.ALGORITHM || result.datedTrees?.length !== trees.length)
+      throw new Error("Incomplete or version-mismatched output returned by the built-in penalized-likelihood aligner");
+    if (result.seed !== 1) throw new Error("Built-in penalized-likelihood aligner did not apply deterministic seed = 1");
     state.cloud.treePLSeed = result.seed;
     state.cloud.treePLRuns.push({ engine: result.engine, analysis_kind: "display_alignment",
       binary_sha256: result.binary_sha256 || null, seed: result.seed,
@@ -3467,7 +3468,7 @@ async function dateCloudTrees(roots, rootAge, existingSpeciesAges = null) {
     });
     const datedTrees = [];
     for (let offset = 0; offset < inputs.length; offset += 100) {
-      $("tree-loading-detail").textContent = `Running treePL alignment: gene trees ${offset + 1}–${Math.min(inputs.length, offset + 100)} / ${inputs.length}...`;
+      $("tree-loading-detail").textContent = `Running penalized-likelihood alignment: gene trees ${offset + 1}–${Math.min(inputs.length, offset + 100)} / ${inputs.length}...`;
       datedTrees.push(...await runBatch(inputs.slice(offset, offset + 100)));
     }
     genes.forEach((root, index) => {
@@ -3532,7 +3533,7 @@ function* renderCloudTreeSteps() {
     treePLRuns: cloud.treePLRuns || [],
     treePLSeed: cloud.treePLSeed ?? null,
     species: cloud.importedDating || { mode: cloud.datingEngine, unit: cloudTimeUnit(), rootAge: cloud.datedRootAge, calibrationSource: "user-supplied-root-age", fossilCalibrated: false },
-    genes: { engine: cloud.geneRoots.length ? cloud.geneDatingEngine || "bundled-treePL" : null,
+    genes: { engine: cloud.geneRoots.length ? cloud.geneDatingEngine || "PhyloRender-pl-aligner" : null,
       calibration: "species-root-and-identical-descendant-clades", unit: cloudTimeUnit(),
       numericalScaleToTreePL: cloudTreePLNumericalScale(cloud.datedRootAge) },
     fossilCalibrated: cloud.importedDating ? null : false };
@@ -3600,7 +3601,7 @@ function updateCloudStatus() {
     ? ` Preserved imported ages: root age ${cloud.datedRootAge} ${cloudTimeUnitLabel()} (${cloud.importedDating.ageSource}); treePL skipped for species tree.`
     : cloud.datingEngine === "relative-display"
     ? " treePL not executed: horizontal coordinates represent relative topological depth rather than divergence time."
-    : cloud.datingEngine === "bundled-treePL" ? " Calibrated via bundled treePL; schematic root age is not fossil-calibrated." : ""}`;
+    : ["PhyloRender-pl-aligner", "bundled-treePL"].includes(cloud.datingEngine) ? " Calibrated via built-in penalized-likelihood aligner; schematic root age is not fossil-calibrated." : ""}`;
   $("cloud-species-name").textContent = cloud.speciesName || "Not imported";
   $("cloud-genes-name").textContent = cloud.geneName || "Not imported";
   $("cloud-phyparts-name").textContent = cloud.phyPartsName || "Computed automatically upon gene-tree upload";
@@ -3684,13 +3685,13 @@ async function importCloudGenesCandidate(file) {
   if (accepted.length && $("cloud-show-gene").checked) {
   $("tree-loading-detail").textContent = `Discordance statistics complete; aligning ${accepted.length} cloudogram gene trees to shared species-tree clades...`;
   const rootAge = cloudControls().age;
-  const knownSpeciesAges = ["bundled-treePL", "imported-dated"].includes(cloud.datingEngine) && cloud.datedRootAge === rootAge
+  const knownSpeciesAges = ["PhyloRender-pl-aligner", "bundled-treePL", "imported-dated"].includes(cloud.datingEngine) && cloud.datedRootAge === rootAge
     ? cloud.datedAges.get(cloud.speciesRoot) : null;
   try {
     const datedAges = await dateCloudTrees([cloud.speciesRoot, ...accepted], rootAge, knownSpeciesAges);
     Object.assign(cloud, { geneRoots: accepted, datedAges, datedRootAge: rootAge,
-      datingEngine: cloud.importedDating ? "imported-dated" : "bundled-treePL", geneDatingEngine: "bundled-treePL" });
-  } catch (error) { checkScienceCancellation(); datingError = `Cloudogram treePL alignment incomplete: ${error.message}. Discordance statistics retained.`; }
+      datingEngine: cloud.importedDating ? "imported-dated" : "PhyloRender-pl-aligner", geneDatingEngine: "PhyloRender-pl-aligner" });
+  } catch (error) { checkScienceCancellation(); datingError = `Cloudogram penalized-likelihood alignment incomplete: ${error.message}. Discordance statistics retained.`; }
   }
   cloud.datingError = datingError;
   audit.trees.forEach(row => { row.overlay_drawn = Boolean(row.cloud && cloud.geneRoots.length); });
@@ -5672,7 +5673,7 @@ function cloudFigureReady() {
       !cloud.datedAges.has(cloud.speciesRoot)) return false;
   if ($("cloud-show-species").checked) return true;
   return $("cloud-show-gene").checked && cloud.geneRoots.length > 0 &&
-    (cloud.geneDatingEngine || cloud.datingEngine) === "bundled-treePL" &&
+    ["PhyloRender-pl-aligner", "bundled-treePL"].includes(cloud.geneDatingEngine || cloud.datingEngine) &&
     cloud.geneRoots.every(root => cloud.datedAges.has(root));
 }
 
@@ -6254,7 +6255,7 @@ async function loadDefaultCloudWorkspace() {
       return;
     }
     await progress.stage(1, "Reading precomputed cloudogram demonstration...");
-    if (example.version !== 1 || example.datingEngine !== "bundled-treePL")
+    if (example.version !== 1 || !["PhyloRender-pl-aligner", "bundled-treePL"].includes(example.datingEngine))
       throw new Error("Invalid built-in cloudogram snapshot version or alignment engine.");
     const roots = example.trees.map(item => {
       const root = parseNewick(item.newick, { validateInput: false });
@@ -6280,7 +6281,7 @@ async function loadDefaultCloudWorkspace() {
       geneAudit: example.geneAudit, geneFile: null,
       datedAges: new Map(roots.map(item => [item.root, item.ages])),
       datedRootAge: example.rootAge, datingEngine: example.datingEngine,
-      importedDating: null, geneDatingEngine: "bundled-treePL",
+      importedDating: null, geneDatingEngine: example.datingEngine,
       treePLSeed: null,
       phyPartsText: example.phyPartsText,
       phyPartsTable: PhyloRenderCloud.parsePhyPartsTable(example.phyPartsText),
@@ -6393,12 +6394,12 @@ function bindControls() {
         const useTreePL = !imported && $("cloud-show-gene").checked;
         if (imported) $("cloud-root-age").value = rootAge;
         $("tree-loading-detail").textContent = imported ? "Preserving calibrated species-tree node ages (no re-dating)..." : useTreePL
-          ? "Smoothing species tree with bundled treePL..." : "Computing relative display coordinates...";
+          ? "Smoothing species tree with built-in penalized-likelihood aligner..." : "Computing relative display coordinates...";
         const datedAges = imported ? new Map([[root, imported.ages]]) : useTreePL ? await dateCloudTrees([root], rootAge)
           : new Map([[root, PhyloRenderCloud.relativeAges(root, rootAge).ages]]);
         resetDefaultTreeView();
         Object.assign(state.cloud, { speciesRoot: root, speciesName: file.name, geneName: "", geneRoots: [], geneAudit: null,
-          datedAges, datedRootAge: rootAge, datingEngine: imported ? "imported-dated" : useTreePL ? "bundled-treePL" : "relative-display",
+          datedAges, datedRootAge: rootAge, datingEngine: imported ? "imported-dated" : useTreePL ? "PhyloRender-pl-aligner" : "relative-display",
           geneDatingEngine: null,
           importedDating: imported ? { mode: "imported-dated", ageSource: imported.ageSource,
             unit: $("cloud-dated-unit").value, rootAge, warnings: imported.warnings,
@@ -6598,8 +6599,8 @@ function bindControls() {
                 : new Map([[state.cloud.speciesRoot, PhyloRenderCloud.relativeAges(state.cloud.speciesRoot, age).ages]]);
               checkScienceCancellation();
               Object.assign(state.cloud, { datedAges, datedRootAge: age,
-                datingEngine: useTreePL ? "bundled-treePL" : "relative-display",
-                geneDatingEngine: state.cloud.geneRoots.length ? "bundled-treePL" : null });
+                datingEngine: useTreePL ? "PhyloRender-pl-aligner" : "relative-display",
+                geneDatingEngine: state.cloud.geneRoots.length ? "PhyloRender-pl-aligner" : null });
               updateCloudStatus();
               await renderCloudTree();
             });

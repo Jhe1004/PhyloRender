@@ -27,7 +27,7 @@ try{
   await page.locator('#cloud-species-file').setInputFiles(file('species.tree',species));
   await page.locator('#tree-loading').waitFor({state:'hidden',timeout:180000});
   const before=await page.evaluate(()=>JSON.stringify({root:state.cloud.speciesRoot,ages:[...state.cloud.datedAges.get(state.cloud.speciesRoot)]}));
-  await page.getByRole('button',{name:'导入',exact:true}).click();
+  await page.locator('[data-settings-target="data"]').click();
   await page.evaluate(()=>{let el=$('cloud-phyparts-outgroups');while(el){if(el.tagName==='DETAILS')el.open=true;el=el.parentElement;}});
   await page.locator('#cloud-phyparts-outgroups').fill('O1\nO2');
   await page.locator('#cloud-phyparts-outgroups').dispatchEvent('change');
@@ -36,11 +36,12 @@ try{
   await page.waitForFunction(()=>!activeTreeLoad,null,{timeout:180000});
   await settleFigure(page);
   const stateReport=await page.evaluate(()=>({age:state.cloud.datedRootAge,genes:state.cloud.geneRoots.length,
+    runs:state.cloud.treePLRuns,
     audit:state.cloud.geneAudit,stats:state.cloud.phyPartsMeta,root:JSON.stringify({root:state.cloud.speciesRoot,ages:[...state.cloud.datedAges.get(state.cloud.speciesRoot)]})}));
   assert.equal(stateReport.root,before);assert.equal(stateReport.age,3);assert.equal(stateReport.genes,1);
   assert.equal(stateReport.audit.total,3);assert.equal(stateReport.audit.stats.accepted,2);
   assert.equal(stateReport.audit.stats.unrootable,1);assert.equal(stateReport.stats.mode,'four');
-  assert.equal(dates.length,1);assert.equal(dates[0].trees.length,1,'species tree must never be dated again');
+  assert.equal(dates.length,0);assert.equal(stateReport.runs.length,1);assert.equal(stateReport.runs[0].tree_count,1,'species tree must never be dated again');
   await page.waitForFunction(()=>PhyloRenderNativeClient.activeCount===0);
   await page.evaluate(async()=>{await refreshTaxonNameRecognition({force:true,deferRender:true});await ensureFigureFontsReady();await renderTree();});
   await settleFigure(page);
@@ -62,7 +63,7 @@ try{
   assert.equal(await canonical(web),await canonical(remote),'GUI and MCP must retain identical scientific metadata and geometry');
   const retained=await page.evaluate(()=>JSON.stringify(PhyloRenderAgent.exportConfiguration()));
   await assert.rejects(page.evaluate(input=>PhyloRenderAgent.loadFigure(input),{...spec,options:{...spec.options,
-    cloud:{...spec.options.cloud,phyparts_outgroups:['O1','A']}}}),/现有二分根/);
+    cloud:{...spec.options.cloud,phyparts_outgroups:['O1','A']}}}),/PHYPARTS_OUTGROUP_INVALID|basal|outgroup|现有二分根/i);
   assert.equal(await page.evaluate(()=>JSON.stringify(PhyloRenderAgent.exportConfiguration())),retained,'failed selection restores every model and control');
   assert.equal(await canonical(await page.evaluate(()=>serializeRenderedSvg())),await canonical(web));
   if(evidence){
