@@ -4,7 +4,7 @@
 
 **A human- and agent-accessible platform for reproducible, publication-ready phylogenetic visualization**
 
-Modern phylogenomic studies rely heavily on publication-quality trees, yet researchers still face three everyday bottlenecks:
+Scientific research is rapidly entering the AI agent era, in which many tedious, multi-step analytical and plotting workflows can already be automated accurately by AI agents. Yet turning raw phylogenetic trees into publication-ready manuscript figures still lags behind due to three everyday bottlenecks:
 
 1. **No native AI Agent interface (no dedicated MCP server or Agent Skill)**: Existing phylogenetic software—both GUI viewers and plotting libraries—was built only for manual clicking or ad-hoc scripts. Without a structured Model Context Protocol (MCP) server and domain-specific Agent Skill, AI agents cannot reliably inspect taxon identities, apply MRCA-based clade edits, or check layout quality without fragile glue code.
 2. **Fragmented multi-software pipelines across standard manuscript figures**: A typical phylogenomic paper requires a multi-support phylogram, a fossil-calibrated chronogram (dating tree), cytonuclear discordance comparisons (plastome/mitogenome vs. nuclear trees), and gene-tree/species-tree conflict plots combining cloudograms with discordance pie charts. No single conventional tool covers all four, forcing researchers through a dozen or more disconnected programs, format conversions, and scripts.
