@@ -1,38 +1,67 @@
 cff-version: 1.2.0
 message: "If you use PhyloRender in your research, please cite it using the metadata below."
-title: "PhyloRender: a human- and agent-accessible platform for reproducible phylogenetic visualization"
-version: "0.8.0"
+title: "PhyloRender: an interactive and agent-ready package for reproducible phylogenetic visualization"
 license: "GPL-3.0-or-later"
 type: software
 repository-code: "https://github.com/Jhe1004/PhyloRender"
 url: "https://github.com/Jhe1004/PhyloRender"
 abstract: >-
-  PhyloRender is an open-source phylogenetic visualization platform providing
-  both an interactive local web workbench and a Model Context Protocol (MCP)
-  server backed by a single deterministic rendering engine. It supports
-  phylograms with multi-tree bipartition support matching, fossil-calibrated
-  chronograms with official ICS geologic timescales, gene-tree/species-tree
-  cloudograms with Java-free 4-category discordance pie charts, and untangled
-  tanglegrams, with zero-collision typography, strict collinear multi-tier clade
-  brackets, and immutable revision provenance.
+  PhyloRender is an open-source phylogenetic visualization package providing
+  both an interactive browser workbench and a Model Context Protocol (MCP)
+  server paired with a domain Agent Skill on a single shared rendering engine.
+  It covers multi-support phylograms, fossil-calibrated chronograms with
+  official ICS geologic timescales, cytonuclear tanglegrams, and multi-locus
+  gene-tree cloudograms with built-in four-category discordance pie charts and
+  penalized-likelihood visual alignment, exporting overlap-free vector SVG,
+  high-DPI PNG, and monophyletic two-panel figures.
 keywords:
-  - phylogenetics
-  - visualization
-  - Model Context Protocol
-  - MCP
   - chronogram
   - cloudogram
+  - cytonuclear discordance
+  - Model Context Protocol
+  - phylogenomics
   - tanglegram
-  - reproducible research
 authors:
   - family-names: "He"
     given-names: "Jian"
-    affiliation: "Corresponding author (update full author list and ORCID prior to archival)"
+    affiliation: "School of Ecology and Nature Conservation, Beijing Forestry University, Beijing 100083, China"
+    orcid: "https://orcid.org/0000-0002-5020-5608"
+  - family-names: "Chen"
+    given-names: "Jingjing"
+    affiliation: "School of Ecology and Nature Conservation, Beijing Forestry University, Beijing 100083, China"
+    orcid: "https://orcid.org/0009-0002-0259-4546"
+  - family-names: "He"
+    given-names: "Zihao"
+    affiliation: "School of Ecology and Nature Conservation, Beijing Forestry University, Beijing 100083, China"
+    orcid: "https://orcid.org/0009-0008-2127-0428"
+  - family-names: "Xiao"
+    given-names: "Jiamin"
+    email: "xjm19990000@163.com"
+    affiliation: "Ecological Conservation, Restoration and Resource Utilization in Forest and Wetland Key Laboratory of Sichuan Province, Sichuan Academy of Forestry, Chengdu 610081, China"
+    orcid: "https://orcid.org/0000-0002-8304-1160"
+  - family-names: "Xie"
+    given-names: "Lei"
+    email: "xielei@bjfu.edu.cn"
+    affiliation: "School of Ecology and Nature Conservation, Beijing Forestry University, Beijing 100083, China"
+    orcid: "https://orcid.org/0000-0001-7181-9222"
 preferred-citation:
   type: article
-  title: "PhyloRender: a human- and agent-accessible platform for reproducible phylogenetic visualization"
-  journal: "Molecular Ecology Resources"
+  title: "PhyloRender: an interactive and agent-ready package for reproducible phylogenetic visualization"
+  journal: "bioRxiv"
   year: 2026
   authors:
     - family-names: "He"
       given-names: "Jian"
+      orcid: "https://orcid.org/0000-0002-5020-5608"
+    - family-names: "Chen"
+      given-names: "Jingjing"
+      orcid: "https://orcid.org/0009-0002-0259-4546"
+    - family-names: "He"
+      given-names: "Zihao"
+      orcid: "https://orcid.org/0009-0008-2127-0428"
+    - family-names: "Xiao"
+      given-names: "Jiamin"
+      orcid: "https://orcid.org/0000-0002-8304-1160"
+    - family-names: "Xie"
+      given-names: "Lei"
+      orcid: "https://orcid.org/0000-0001-7181-9222"

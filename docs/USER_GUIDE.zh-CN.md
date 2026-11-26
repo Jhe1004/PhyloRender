@@ -1,8 +1,8 @@
 # PhyloRender 详尽使用与审稿人指南
 
-[English](USER_GUIDE.md) | **简体中文**
+[← 返回仓库首页](../README.zh-CN.md) · [English](USER_GUIDE.md) | **简体中文** · [完整参数说明书](USER_MANUAL.zh-CN.md) · [核心算法与架构说明](ALGORITHMS_AND_ARCHITECTURE.zh-CN.md)
 
-本手册详细介绍 **PhyloRender（v0.8.0）** 如何彻底解决系统发育绘图的“最后一公里”手工修图痛点，以及平台的整体架构、四大绘图工作区、科学不变量保障、多层嵌套分组与地质时间轴、Web 工作台操作流程、MCP 服务接入和 **Agent Skill** 的完整安装与实战指南。
+本手册详细介绍 **PhyloRender** 如何彻底解决系统发育绘图的“最后一公里”手工修图痛点，以及平台的整体架构、四大绘图工作区、科学不变量保障、多层嵌套分组与地质时间轴、Web 工作台操作流程、MCP 服务接入和 **Agent Skill** 的完整安装与实战指南。
 
 > **为什么需要 PhyloRender？** 绝大多数现有系统发育树软件直接生成的树图在短枝密集处都会出现节点支持率、年龄和树枝互相重叠的问题，迫使研究者每次都得导进 Illustrator、CorelDRAW 或 Inkscape 里逐个节点手工拖拽支持率、画引线和对齐括号——既耗时费力，树一重跑又得全部重来。PhyloRender 将这“最后一公里”彻底自动化：通过确定性多方向碰撞避让、`45°` 带白桥虚线引线、满支持枝 `2.5×` 加粗、严格同层共线的多层括号和自适应地质年代格，让每一次建树或修改都能在几秒内直接复现出可直接投稿的干净图件。
 
@@ -151,4 +151,4 @@ PhyloRender 原生支持单层及多层嵌套分类分组（例如内层标“�
 - **提示找不到 Chrome / Chromium**：运行 `npm --prefix mcp-server run install-browser` 自动安装无头 Chromium，或通过环境变量 `PHYLORENDER_BROWSER_EXECUTABLE` 指定本机浏览器路径。
 - **`stdio.mjs` 提示 `OUTPUT_DIRECTORY_LOCKED`**：每个输出目录采用单写者租约锁（`.writer-lease.json`）以防并发写坏修订历史。如需同时运行多个独立 `stdio` 实例，请为它们配置不同的 `PHYLORENDER_OUTPUT_ROOT`；更推荐多个 Agent 共享同一个本地 HTTP 服务（`127.0.0.1:8766`）。
 - **Linux 或无 Arial 字体环境**：PhyloRender 会显式回退至内置开源字体 Arimo，重新量测全部字形并在导出 SVG 中嵌入所需字体子集，同时在 `report.font_portability` 中如实记录，绝不把 Arimo 冒充 Arial。
-- **电脑休眠后本地共享 MCP 报浏览器断开**：v0.8.0 已在 `mcp-server/src/runtime.mjs` 中内置 `ensureBrowser()` 自动检测并重建无头浏览器，无需手动重启服务。
+- **电脑休眠后本地共享 MCP 报浏览器断开**：系统已在 `mcp-server/src/runtime.mjs` 中内置 `ensureBrowser()` 自动检测并重建无头浏览器，无需手动重启服务。

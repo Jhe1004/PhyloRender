@@ -2,55 +2,102 @@
 
 [English](README.md) | **简体中文**
 
-**面向人类研究者与 AI Agent 的一站式、零碰撞可复现系统发育可视化平台**
+**面向人类研究者与 AI Agent 的交互式可复现系统发育可视化软件包**
 
-当前科学研究正加速迈入 AI agent 时代，大量繁琐、多步骤的数据分析与制图工序已经能够借助 AI agent 实现精确自动化；然而，将原始系统发育树转化为论文可直接发表的成图却依然耗费大量人力，主要受困于三大核心痛点：
+> **完整说明书与技术文档导航**：[完整使用说明书与全参数总表](docs/USER_MANUAL.zh-CN.md) ([English Manual](docs/USER_MANUAL.md)) · [快速功能导览](docs/USER_GUIDE.zh-CN.md) ([English Guide](docs/USER_GUIDE.md)) · [核心算法推导与系统架构](docs/ALGORITHMS_AND_ARCHITECTURE.zh-CN.md) ([Algorithms & Architecture](docs/ALGORITHMS_AND_ARCHITECTURE.md)) · [MCP 服务手册](mcp-server/README.zh-CN.md) · [Agent Skill 指南](skills/phylorender-mcp/README.zh-CN.md)
 
-1. **缺乏面向 AI Agent 的原生适配（没有专门的 MCP 服务与 Agent Skill）**：现有系统发育绘图工具（无论是图形界面软件还是脚本库）均面向纯人工点选或临时写代码，没有专门面向 AI Agent 设计的 Model Context Protocol（MCP）接口与领域 Skill，导致 AI 助手使用门槛高、只能拼凑脆弱脚本，难以可靠校验样品身份、执行语义化修改或自动检查版面质量。
-2. **标准论文所需的四类核心图件割裂在十余种软件与繁琐工序中**：一篇完整的系统发育论文往往同时需要系统发育树（含多源支持率）、分化时间树（Dating 图）、核质冲突分析（如叶绿体/线粒体基因组 vs. 核基因组）以及基因树—物种树冲突分析（通常以云图 + 冲突饼图呈现）。这些高度关联的图形过去无法在一个软件里完成，研究者不得不跨越十几个乃至二十个工具和中间转换步骤，耗费大量精力且难以统一风格。
-3. **出版级排版的“最后一公里”手工修图瓶颈**：即便费力导出初始树图，短枝密集处的节点支持率与年龄标注仍常直接重叠在树枝上；而分支分组着色、单层/多层分类群名称标注以及 Dating 图中的地质年代背景着色，几乎都无法自动完成，只能导进 Adobe Illustrator、CorelDRAW 或 Inkscape 里逐个节点手工拖拽调整——不仅极度耗时，树一重跑就得全部重做。
-
-**PhyloRender 在同一套确定性科学模型与零碰撞渲染引擎上，一站式解决了这三大痛点**：同时提供交互式 **Web 工作台**、原生 **MCP 服务** 与开箱即用的 **Agent Skill**，完整覆盖四大核心系统发育绘图工作区，让人类研究者和 AI 助手都能从 Newick/Nexus 文件直接产出可复现、无需手工修图的出版级矢量 SVG 与高分辨率 PNG。
-
-> **完整文档导航**：[中文详尽使用文档](docs/USER_GUIDE.zh-CN.md) · [English User Guide](docs/USER_GUIDE.md) · [MCP 服务手册 (中文)](mcp-server/README.zh-CN.md) · [MCP Server Guide (EN)](mcp-server/README.md) · [Agent Skill 使用指南 (中文)](skills/phylorender-mcp/README.zh-CN.md) · [Agent Skill Guide (EN)](skills/phylorender-mcp/README.md)
+![PhyloRender 全景导览](docs/figures/overview_banner.png)
 
 ---
 
-## 软件整体介绍
+## 为什么需要 PhyloRender？
 
-### 四大核心工作区
+当前科学研究正加速进入 AI agent 时代，许多多步骤的数据分析与常规统计绘图已能由 AI 助手自动完成。然而，把建树软件输出的原始树文件变成可直接投稿发表的期刊成图，仍然高度依赖繁琐的人工修图，主要受制于三大日常痛点：
 
-| 工作区 | MCP `workspace` | 适用科研场景与核心能力 |
+1. **缺乏面向 AI Agent 的原生接口**：现有图形界面看树软件依赖鼠标点击，而通用绘图代码库迫使 AI 从零编写一次性 R/Python 脚本，既没有结构化工具校验样品身份与外群，也无法自动检测图面文字是否重叠。
+2. **四类标准系统发育图件分散在十余种互不兼容的工具中**：一篇完整的系统发育基因组学论文往往同时需要多支持率常规树（Phylogram）、化石校准分子钟时间树（Chronogram）、核质冲突双树对照图（Tanglegram）以及多位点基因树冲突云图与饼图（Cloudogram & Pies），迫使作者在十几种独立脚本、网页工具、Java 程序与 C++ 编译依赖之间反复转换格式。
+3. **“最后一公里”矢量手工修图难题**：在快速辐射演化支和密集短枝区域，传统软件导出的初稿普遍存在支持率与树枝重叠、多层分类群括号不对齐、地质年代表需手动拼画等问题，导致作者每次更新上游结果都要在 Adobe Illustrator、CorelDRAW 或 Inkscape 中耗费数小时手动挪字修图，难以自动复现。
+
+**PhyloRender 在单一开源软件包中同时解决了这三大痛点。** 基于同一套确定性排版与数据完整性校验引擎，PhyloRender 将交互式 **浏览器工作台（Web Workbench）**、内置 **MCP（Model Context Protocol）服务**与领域 **Agent Skill** 融为一体，一站式覆盖全部四类核心系统发育图件，直接从 Newick 和 Nexus 树文件输出无需手工修图的出版级矢量 SVG、高分辨率 PNG 与单系双面板大图。
+
+---
+
+## 实证案例与功能展示图库
+
+以下所有实证图件均由 PhyloRender 直接导出，**未经任何外部矢量绘图软件手工调整**（实证数据来自已发表无患子科系统发育基因组数据集，He et al., 2025）。
+
+### 1. 交互式 Web 工作台与快速辐射短枝排布对比
+
+在内部短枝密集的快速辐射演化支上，传统脚本库要么导致复合支持率严重叠字，要么为塞下文字而篡改真实枝长。PhyloRender 严格保留原始枝长与拓扑，将双满支持主干编码为加粗树枝，并通过引线将拥挤支持率自动排入周边留白区，实现零重叠：
+
+![Web 工作台界面与排版对比](docs/figures/fig2_workbench_and_comparison.png)
+
+* **(a)** PhyloRender 交互式浏览器工作台：统一的 `− / 数字输入 / +` 精确步进器、画布直接点击建组/重定根，以及底部一键节点标注自动避让按钮。
+* **(b–d)** 同一棵 50 物种无患子亚科快速辐射演化支（配对 ML 自展值 `%` 与 ASTRAL 后验概率 `0–1`）的无手工修图直出对比：**(b)** R `ape`、**(c)** Python `ETE3`（`position="float"`）与 **(d)** **PhyloRender**（零标签重叠）。
+
+---
+
+### 2. 多源支持率常规树、分子钟时间树与核质冲突双树对照图
+
+在同一套字体规范、拉丁学名斜体规则与分类群配色方案下协同生成整篇论文的核心树图：
+
+![常规树、时间树与双树对照图案例](docs/figures/fig3_phylogram_chronogram_tanglegram.png)
+
+* **(a) 多方法合并常规树（`phylogeny`）**：按无根二分划分（canonical unrooted splits）自动配对不同建树软件的相同演化支（如拼接法 ML 自展值 + ASTRAL 溯祖后验概率），右侧自动排布严格同列对齐的内层实线“族”括号与外层虚线“亚科”括号。
+* **(b) 化石校准分子钟时间树（`time`）**：严格保留输入树根、分化年龄与 95% HPD 置信区间条，自动屏蔽支持率以免与年代混淆，并绘制官方国际地层委员会（ICS）地质年代表（窄年代格自动缩字适配，绝不越界重叠）。
+* **(c) 核质冲突双树对照图（`conflict`）**：基于原始样品编号执行严格 1 对 1 对齐，仅通过旋转姐妹分支大幅减少核质拓扑冲突连线的无谓交叉，丝毫不改变任一棵树的拓扑结构。
+
+---
+
+### 3. 基因树冲突云图与四分类冲突饼图（零 Java / C++ 外部安装依赖）
+
+传统流程制作“云树 + 基因树冲突饼图”需要分别配置 Java 环境（`PhyParts`）并编译复杂的 C++ 数学库（`treePL` + `ADOL-C` + `NLopt`）。PhyloRender 用纯 JavaScript 内置实现了这两套核心计算模块，在 macOS、Linux 与 Windows 上开箱即用：
+
+![基因树冲突云图与四分类饼图](docs/figures/fig4_cloudogram_discordance.png)
+
+* **内置无 Java 四分类冲突统计模块**：依据 Smith et al. (2015) 有根二分对比规则，自动统计一致（Concordant）、主次冲突（Main alternative）、其余冲突（Remaining alternatives）与无信息（Uninformative）四类基因树比例（兼容缺失部分物种的基因树，且统计结果与输入树顺序完全无关）。
+* **内置无 C++ 惩罚似然视觉缩放模块**：依据 Sanderson (2002) 与 Smith & O'Meara (2012) 的速率平滑惩罚似然方法，在锁定物种树共有演化支年龄的前提下将完整取样 ML 基因树平滑缩放至同一地质时间轴供视觉叠绘（在报告中明确标注 `display_alignment`），共有内部节点纵向锚定对齐，基因枝按物种树 MRCA 自动着色。
+
+---
+
+### 4. 大型系统发育树自动单系双面板切分
+
+面对单页难以容纳的大型系统发育树（如 150–300+ 样品），PhyloRender 支持在单系冠群处自动切分为两张等宽面板，并将跨面板的外层亚科括号自动延续至第二面板：
+
+![176 物种系统发育树自动双面板切分](docs/figures/figS1_two_panel_split.png)
+
+---
+
+### 5. 人类研究者与 AI Agent 共享同一渲染引擎
+
+浏览器工作台与内置 MCP 服务 + Agent Skill 底层运行完全相同的树解析、数据保护与几何排版引擎（统一 `1,000-u` 画布坐标契约），支持通过 `.json` 配置文件与不可变修订号（`revision`）在人工微调与 AI 批量自动化之间无损接力：
+
+![PhyloRender 整体工作流架构](docs/figures/fig1_workflow_architecture.png)
+
+---
+
+## 四大工作区能力速查
+
+| 工作区名称 | MCP `workspace` | 核心适用场景与内置科学数据保护 |
 | --- | --- | --- |
-| **普通系统发育树（Phylogram）** | `phylogeny` | 展示单树或多树二分匹配（如 ML bootstrap `%` + ASTRAL LPP / 贝叶斯 PP）的复合支持率；自动识别量纲与小数位；双满支持枝自动 `2.5×` 加粗；`45°` 带白桥虚线引线实现节点标注零碰撞；支持单层与多层嵌套分类括号。 |
-| **时间树（Time Tree）** | `time` | 展示化石校准的分化时间树、节点年龄、95% HPD 置信区间及官方国际地层委员会（ICS，0–4567 Ma）地质年代表；窄地质年代格单格自适应缩字；严格保留输入定根与原始年代，不混画支持率。 |
-| **基因树—物种树冲突云图（Cloudogram & Discordance）** | `cloud` | 由内置零 C++ 编译依赖的纯 JavaScript 惩罚似然引擎（依据 Sanderson, 2002 与 Smith & O'Meara, 2012）将多棵 ML 基因树对齐叠绘到物种时间树上（显式披露 `display_alignment`），并由内置无 Java 依赖的 JavaScript 冲突引擎（依据 Smith et al., 2015）自动计算并绘制四分类（一致 / 主冲突 / 其余冲突 / 无信息）饼图。 |
-| **双树冲突对照图（Tanglegram）** | `conflict` | 并排对比两棵系统发育树（如核基因树 vs. 叶绿体树），执行严格的 1 对 1 样品身份匹配，自动旋转右树姐妹分支大幅降低连线交叉，采用无引线紧贴支持率标注。 |
-
-### 核心工程与科学设计亮点
-
-- **Web 与 MCP 同源一致**：网页工作台与 MCP 服务运行完全相同的 `core/` 科学模块、`render/` 渲染引擎、`figure-contract.js`（全工作区固定 `1000-u` 规范画幅）和 `agent-bridge.js`，不存在第二套绘图算法。
-- **严格的科学不变量保护**：所有样式调整、阶梯化排序、学名斜体、显示改名和分组着色均**绝不改写**原始拓扑、枝长、支持率、节点年龄、HPD 区间和原始样品身份键（完整保留如 `2023080906_1` 的标本编号下划线）。
-- **零碰撞出版级自动排版**：多方向候选评分自动放置节点数值与 `45°` 白桥引线；按全图样品名自然宽度中位数的 `1.25×` 自动横向拟合超长学名；稀疏树自动舒展至约 `1.25` 黄金竖版比例；支持可选离线 `gnfinder`/`gnparser` 精确拉丁学名斜体解析（未安装时自动回落至内置植物/动物命名规则）。
-- **严格同层共线的多层嵌套分组括号**：支持单层或多层嵌套分类标注（例如内层 `tier: 0` 实线着色各族 + 外层 `tier: 1` 虚线包裹亚科），并原生支持**同一节点同时挂载不同层级**（如单属亚科同时标注内层族与外层亚科）。多层模式下同一层所有括号严格锁定在一条笔直垂直线上，冲突的竖排文字仅向右微幅错开，括号绝不左右乱窜。
-- **大型树自动单系双面板拆分（`panels`）**：长普通树或时间树最多拆分为两张等宽面板，Panel 2 自动隔离一个完整单系冠群，并跨面板自动继承外层亚科括号与颜色。
-- **可追溯审计与高稳定性**：MCP 每次编辑生成不可变修订版本（`revision`）、脱敏 `spec.json` 和结构化质检报告 `report.json`（含 `safe_for_export`、`remaining_collisions`、`topology_unchanged` 等）；常驻无头浏览器断开后可自动重建自愈。
+| **普通系统发育树（Phylogram）** | `phylogeny` | 单树或多树无根二分匹配支持率（`%` 与 `0–1`）、满支持加粗枝、低支持掩码（`–`）、引线防重叠排布、多层共线分类括号、单系双面板导出。 |
+| **分化时间树（Time Tree）** | `time` | 两步引导导入（导树 + 确认时间单位与年龄来源）、95% HPD 误差条、官方 ICS 地质年代表、双面板导出。严格保留原根与原年代，主动屏蔽重定根与支持率叠加。 |
+| **基因树冲突云图（Cloudogram）** | `cloud` | 已定年物种树 + 批量 ML 基因树、内置 JS 惩罚似然视觉对齐、内置 JS 四分类冲突饼图、物种树 MRCA 分支着色、ICS 地质时间轴。 |
+| **双树冲突对照图（Tanglegram）** | `conflict` | 双树并排拓扑比较、严格 1 对 1 原始样品身份匹配、样品差异显式 `intersection`/`union` 确认、姐妹分支旋转自动解缠。 |
 
 ---
 
-## 快速上手
+## 快速上手（Quick Start）
 
-### 环境依赖
+### 环境要求
 
-- **Python 3.9+**（用于启动本地回环 Web 工作台服务与受管原生程序）
-- **Node.js 20+** 与 **Google Chrome / Chromium**（用于运行 MCP 服务与 Agent Skill；若未安装浏览器可通过 Playwright 一键安装）
+- **Python 3.9+**（启动本机回环 Web 工作台服务）
+- **Node.js 20+** 与 **Google Chrome / Chromium**（运行 MCP 服务与 Agent Skill；若未安装浏览器可通过 Playwright 一键安装）
 
 ```bash
 git clone https://github.com/Jhe1004/PhyloRender.git
 cd PhyloRender
 ```
-
----
 
 ### 1. 交互式 Web 工作台（人工浏览器操作）
 
@@ -60,29 +107,27 @@ cd PhyloRender
 python3 tools/local_server.py --host 127.0.0.1 --port 8765 --open
 ```
 
-- **macOS 用户**也可直接双击仓库根目录的 `start_phylorender.command` 启动。
-- 默认打开为空白工作台。如需立刻使用内置公开示例数据体验四大工作区，可直接访问：
+- **macOS 用户**也可直接双击仓库根目录下的 `start_phylorender.command`。
+- 默认打开为空白画布；如需直接使用内置公开示例数据体验四大工作区，可访问：
   - 普通系统发育树示例：`http://127.0.0.1:8765/?demo=1&workspace=phylogeny`
-  - 时间树示例：`http://127.0.0.1:8765/?demo=1&workspace=time`
+  - 分化时间树示例：`http://127.0.0.1:8765/?demo=1&workspace=time`
   - 冲突云图示例：`http://127.0.0.1:8765/?demo=1&workspace=cloud`
-  - 双树冲突示例：`http://127.0.0.1:8765/?demo=1&workspace=conflict`
-- 在左侧 **Export** 标签页可直接导出可编辑 SVG、高分辨率 PNG 或完整配置 `spec.json`（可无缝交给 MCP 继续编辑）。
+  - 双树对照示例：`http://127.0.0.1:8765/?demo=1&workspace=conflict`
+- 在左侧 **Export** 标签页可一键导出可编辑矢量 SVG、高 DPI PNG、双面板 `.zip` 压缩包或完整配置文件 `.json`。
 
----
+### 2. MCP 服务（AI Agent 接入与程序化制图）
 
-### 2. MCP 服务（AI Agent 接入与自动化管线）
-
-首次使用先安装一次 MCP 服务依赖：
+首次使用先安装一次 MCP 依赖：
 
 ```bash
 npm ci --prefix mcp-server
-# 若本机未安装 Chrome/Chromium，可执行下面命令自动安装无头 Chromium：
+# 如本机尚未安装 Chrome/Chromium，可执行：
 npm --prefix mcp-server run install-browser
 ```
 
-#### 方式 A：本地 `stdio` MCP（适用于 Claude Desktop、Cursor、Windsurf、Codex、Antigravity）
+#### 方式 A：本地 `stdio` 模式（适用于 Claude Desktop、Cursor、Windsurf、Codex、Antigravity）
 
-在你的 MCP 客户端配置文件中添加（将 `/absolute/path/to/PhyloRender` 替换为本机克隆路径）：
+在客户端 MCP 配置中添加（将 `/absolute/path/to/PhyloRender` 替换为本机克隆路径）：
 
 ```json
 {
@@ -95,7 +140,7 @@ npm --prefix mcp-server run install-browser
 }
 ```
 
-#### 方式 B：本地 Streamable HTTP MCP
+#### 方式 B：本地 Streamable HTTP 模式
 
 ```bash
 npm --prefix mcp-server run start:http
@@ -104,7 +149,7 @@ npm --prefix mcp-server run start:http
 - MCP 端点：`http://127.0.0.1:8766/mcp`
 - 健康检查：`http://127.0.0.1:8766/health`
 
-#### 方式 C：Docker 容器部署（Linux / 课题组共享服务器）
+#### 方式 C：Docker 容器部署（Linux / 课题组服务器）
 
 ```bash
 docker build -f mcp-server/Dockerfile -t phylorender-mcp .
@@ -114,62 +159,46 @@ docker run --rm --init -p 127.0.0.1:8766:8766 \
   phylorender-mcp
 ```
 
----
+### 3. 配套 Agent Skill（`skills/phylorender-mcp/`）
 
-### 3. Agent Skill（`skills/phylorender-mcp/`）
-
-本仓库内置了完整、可独立安装的 **Agent Skill**（位于 [`skills/phylorender-mcp/`](skills/phylorender-mcp/)），让支持 Skill 的 AI 编程助手（Codex、Antigravity、Claude Code、Cursor 等）立刻具备专业系统发育绘图能力。
-
-#### 这个 Skill 解决什么痛点？
-没有 Skill 时，AI 助手常会自己临时拼凑脆弱的 R/Python 绘图脚本或盲猜屏幕坐标。安装本 Skill 后，AI 助手会自动遵循标准科研绘图工作流：
-1. **本地优先共享服务调度**（`scripts/phylorender_mcp_client.mjs`）：自动检测并按需拉起单一共享的本机回环 MCP 服务（`127.0.0.1:8766`），支持请求 JSON 中直接填本地树文件路径、大树异步队列轮询（`start_figure_job` / `wait`），并内置原生 `http/https` 长连接客户端（支持 30 分钟以上超长任务，彻底避免默认 5 分钟超时断连）。
-2. **强制科学确认门禁**：非时间树未指定外群时先向用户确认准确外群，绝不擅自猜测；密集时间树（≥160 节点）自动提示确认标注比例；双树冲突自动先调用 `compare_tree_samples` 核查样品差异。
-3. **默认优先、快速返回矢量图**：直接采用经过充分调优的 `*_u` 出版默认参数，默认走最快的纯 SVG 通道；仅在用户明确要求时才渲染高 DPI PNG 或双面板。
-
-#### 30 秒安装与启用 Skill
+仓库在 [`skills/phylorender-mcp/`](skills/phylorender-mcp/) 中内置了开箱即用的 **Agent Skill**，支持 Codex、Antigravity、Claude Code、Cursor 等主流 AI 编程助手。启用后，AI 会自动遵循系统发育制图规范（未定年树先确认外群、双树先核查样品交并集、大树自动走异步任务队列、导出前校验零碰撞报告）：
 
 ```bash
-# 1. 在 PhyloRender 根目录安装一次 MCP 依赖
-npm ci --prefix mcp-server
-
-# 2. 将 Skill 目录复制到你的 Agent Skill 目录
-# Codex 用户：
+# 1. 将 Skill 复制到你的 AI 助手技能目录
 cp -R skills/phylorender-mcp ~/.codex/skills/phylorender-mcp
-# Antigravity / Gemini CLI 用户：
-cp -R skills/phylorender-mcp ~/.gemini/config/skills/phylorender-mcp
+# （Antigravity / Gemini CLI 用户：cp -R skills/phylorender-mcp ~/.gemini/config/skills/phylorender-mcp）
 
-# 3. 复制配置模板并填写你的 PhyloRender 仓库绝对路径（local-config.json 已被 git 忽略）
+# 2. 复制本地路径配置模板并填入你本机的 PhyloRender 仓库绝对路径
 cp skills/phylorender-mcp/local-config.example.json ~/.codex/skills/phylorender-mcp/local-config.json
-# 编辑 local-config.json 中的 "repoRoot" 为你的本机路径
 
-# 4. 验证本地 MCP 健康与工具发现
+# 3. 验证本地 MCP 连接与全部 15 个工具发现
 node ~/.codex/skills/phylorender-mcp/scripts/phylorender_mcp_client.mjs health
 node ~/.codex/skills/phylorender-mcp/scripts/phylorender_mcp_client.mjs tools
 ```
 
-完成以上四步后，你就可以直接用自然语言指挥 AI 助手画图，例如：
-> *“帮我用 PhyloRender 画一下 `ml.newick`（附带 `astral.newick` 的 LPP 支持率），外群是 `Outgroup_sp`，右边加上两层分组：内层按族实线着色、外层按亚科深灰虚线包裹，输出 SVG 和 350 DPI 的 PNG。”*
-
-更多配置选项、模板与实战案例请阅读 [skills/phylorender-mcp/README.zh-CN.md](skills/phylorender-mcp/README.zh-CN.md) 与 [中文详尽使用文档](docs/USER_GUIDE.zh-CN.md)。
+配置完成后即可直接用自然语言让 AI 制图：
+> *“以 `ml.treefile` 为主树、`astral.tre` 为附加支持率树，以 `Dipteronia_sinensis` 为外群画一棵系统发育树，加上内层实线族括号和外层虚线亚科括号，导出 SVG 和 600 DPI 的 PNG。”*
 
 ---
 
-## 完整文档索引
+## 完整说明书与技术文档索引
 
-| 文档主题 | 简体中文 | English |
-| --- | --- | --- |
-| 项目总览与快速上手 | [README.zh-CN.md](README.zh-CN.md) | [README.md](README.md) |
-| 软件全功能与审稿人详尽手册 | [docs/USER_GUIDE.zh-CN.md](docs/USER_GUIDE.zh-CN.md) | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) |
-| Agent Skill 安装与实战指南 | [skills/phylorender-mcp/README.zh-CN.md](skills/phylorender-mcp/README.zh-CN.md) | [skills/phylorender-mcp/README.md](skills/phylorender-mcp/README.md) |
-| MCP 服务 API 与部署指南 | [mcp-server/README.zh-CN.md](mcp-server/README.zh-CN.md) | [mcp-server/README.md](mcp-server/README.md) |
-| MCP Agent 协议参考与绘图单位契约 | — | [agent-guide.md](mcp-server/docs/agent-guide.md) · [physical-units.md](mcp-server/docs/physical-units.md) |
-| 公开合成基准评测包 | — | [evaluation/README.md](evaluation/README.md) |
+| 文档名称 | 简体中文 | English | 主要内容说明 |
+| --- | --- | --- | --- |
+| **仓库主页总览** | [README.zh-CN.md](README.zh-CN.md) | [README.md](README.md) | 实证图库展示、四大工作区概览与快速启动 |
+| **完整使用说明书与参数总表** | [docs/USER_MANUAL.zh-CN.md](docs/USER_MANUAL.zh-CN.md) | [docs/USER_MANUAL.md](docs/USER_MANUAL.md) | Web 界面 ↔ MCP 字段 ↔ Agent Skill 口令三端全参数对照大表、15 个 MCP 工具清单、五大安全门禁与分步实操流程 |
+| **快速功能导览与常见问题** | [docs/USER_GUIDE.zh-CN.md](docs/USER_GUIDE.zh-CN.md) | [docs/USER_GUIDE.md](docs/USER_GUIDE.md) | 核心功能速览与常见故障排查（FAQ） |
+| **核心算法推导与系统架构** | [docs/ALGORITHMS_AND_ARCHITECTURE.zh-CN.md](docs/ALGORITHMS_AND_ARCHITECTURE.zh-CN.md) | [docs/ALGORITHMS_AND_ARCHITECTURE.md](docs/ALGORITHMS_AND_ARCHITECTURE.md) | 无根二分匹配、Liang–Barsky 碰撞过滤与引线代价函数、多层共线括号、JS 冲突与惩罚似然求解器完整数学公式及事务一致性架构 |
+| **MCP 服务部署与 API 手册** | [mcp-server/README.zh-CN.md](mcp-server/README.zh-CN.md) | [mcp-server/README.md](mcp-server/README.md) | 传输协议、环境变量、鉴权安全与 Docker 部署说明 |
+| **Agent Skill 安装与实战手册** | [skills/phylorender-mcp/README.zh-CN.md](skills/phylorender-mcp/README.zh-CN.md) | [skills/phylorender-mcp/README.md](skills/phylorender-mcp/README.md) | Skill 安装配置、CLI 客户端脚本与常用提示词模板 |
+| **MCP 单位契约与协议规范** | — | [agent-guide.md](mcp-server/docs/agent-guide.md) · [physical-units.md](mcp-server/docs/physical-units.md) | `1000-u` 绘图单位换算契约与 JSON Schema 说明 |
+| **自动化基准评测包** | — | [evaluation/README.md](evaluation/README.md) | 可复现工程验证与性能评测套件 |
 
 ---
 
-## 自动化验证与复现
+## 自动化验证与测试
 
-在仓库根目录运行完整工程门禁、许可合规扫描与 Skill 单元测试：
+在仓库根目录执行完整单元测试、模块边界检查、Schema 核验与开源合规检查：
 
 ```bash
 node tools/build-manifest.cjs
@@ -178,7 +207,7 @@ node tools/check-release.cjs
 node --test skills/phylorender-mcp/scripts/local_service.test.mjs
 ```
 
-运行真实浏览器 MCP 端到端冒烟测试（覆盖全部 15 个 MCP 工具及 HTTP 鉴权/Host/Origin 安全控制）：
+运行真实无头浏览器与 MCP 协议端到端冒烟测试：
 
 ```bash
 (cd mcp-server && node tests/mcp-smoke.mjs && node tests/http-smoke.mjs)
@@ -186,8 +215,8 @@ node --test skills/phylorender-mcp/scripts/local_service.test.mjs
 
 ---
 
-## 开源许可与引用
+## 开源协议与论文引用
 
-- **开源协议**：原始源代码采用 **GPL-3.0-or-later** 许可（见 [LICENSE](LICENSE)）。第三方组件、内置字体及公开示例数据保留各自版权声明（见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 与 [defaults/README.md](defaults/README.md)）。
-- **论文引用**：如在科研论文中使用了 PhyloRender，请通过 [CITATION.cff](CITATION.cff) 引用对应的 *Molecular Ecology Resources* 论文：
-  > *PhyloRender: a human- and agent-accessible platform for reproducible phylogenetic visualization* (v0.8.0).
+- **开源协议**：PhyloRender 原始源代码采用 **GPL-3.0-or-later** 协议发布（见 [LICENSE](LICENSE)）；第三方组件、内置开源字体及公开演示数据保留各自原始许可声明（见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 与 [defaults/README.md](defaults/README.md)）。
+- **论文引用**：如在研究中使用了 PhyloRender，请引用（元数据见 [CITATION.cff](CITATION.cff)）：
+  > He, J., Chen, J., He, Z., Xiao, J., & Xie, L. (2026). *PhyloRender: an interactive and agent-ready package for reproducible phylogenetic visualization*. bioRxiv.
